@@ -1,0 +1,9 @@
+.layout{
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    background-color: #a19f9f;
+    overflow: auto;
+    /* border: 1px solid red; */
+}

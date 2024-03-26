@@ -1,0 +1,7 @@
+/* styles.css */
+.index{
+  /* border: 1px solid blue; */
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
