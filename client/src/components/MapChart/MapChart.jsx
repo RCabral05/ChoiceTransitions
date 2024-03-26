@@ -1,6 +1,7 @@
 import React from 'react';
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps';
 import allStates from './allStates.js'; // Import your state abbreviations and coordinates
+import './styles.css';
 
 const geoUrl = process.env.PUBLIC_URL + "/topojson/states-10m.json";
 
@@ -17,7 +18,7 @@ const MapChart = ({ setTooltipContent }) => {
       
 
   return (
-    <div>
+    <div className='map-con'>
       <ComposableMap projection="geoAlbersUsa">
         <ZoomableGroup>
           <Geographies geography={geoUrl}>
