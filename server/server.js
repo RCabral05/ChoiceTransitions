@@ -4,7 +4,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import { connectToServer } from "./db/conn.js";
-
+import googlePlaces from './routes/googlePlaces.js';
 
 // Initialize Express
 const app = express();
@@ -16,6 +16,7 @@ dotenv.config({ path: "./config.env" });
 app.use(cors());
 app.use(json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(googlePlaces);
 
 // Constants
 const port = process.env.PORT || 3001;

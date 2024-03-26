@@ -5,6 +5,7 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import HomePage from "./pages/HomePage";
+import StateMapPage from "./pages/StateMapPage";
 // Create root element
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement);
@@ -14,6 +15,7 @@ root.render(
       <Routes>
         <Route path="/" element={<App />}>
           <Route index element={<HomePage />} />
+          <Route path="/state-map" element={<StateMapPage />} />
           <Route path="*" element={<p>Route not found</p>} />
         </Route>
       </Routes>

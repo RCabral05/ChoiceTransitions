@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps';
 import allStates from './allStates.js'; // Import your state abbreviations and coordinates
+import GoogleMap from '../GoogleMap/GoogleMap.jsx';
+import { useNavigate } from 'react-router-dom';
 import './styles.css';
 
 const geoUrl = process.env.PUBLIC_URL + "/topojson/states-10m.json";
 
 const MapChart = ({ setTooltipContent }) => {
     const [view, setView] = useState('map'); // 'map' or 'dropdown' to toggle views
+    const [selectedState, setSelectedState] = useState(null); // Add state management for selected state
+    const navigate = useNavigate();
 
     // Function to handle click events on states
     const handleStateClick = (evt, state) => {
         console.log(state); // Log the state abbreviation to the console
-        // You can also call setTooltipContent here if you want to show tooltip information
-        // setTooltipContent(abbreviation);
+        navigate('/state-map', { state: { state } });
     };
 
     // Function to handle selection from the dropdown
@@ -20,6 +23,7 @@ const MapChart = ({ setTooltipContent }) => {
         const state = event.target.value;
         console.log(state); // Log the selected state abbreviation to the console
         // Perform any action on state selection
+        navigate('/state-map', { state: { state } });
     };
 
     // Toggle between map and dropdown view
@@ -64,6 +68,7 @@ const MapChart = ({ setTooltipContent }) => {
                             ))}
                         </ZoomableGroup>
                     </ComposableMap>
+                    {selectedState && <GoogleMap stateName={selectedState} />}
                 </div>
             ) : (
                 <select onChange={handleSelectChange} className="state-dropdown">
