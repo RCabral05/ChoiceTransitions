@@ -4,9 +4,7 @@ import allStates from './allStates.js'; // Import your state abbreviations and c
 
 const geoUrl = process.env.PUBLIC_URL + "/topojson/states-10m.json";
 
-const MapChart = ({ setTooltipContent }) => {
-    const [zoom, setZoom] = React.useState(1); // Initialize zoom state
-    
+const MapChart = ({ setTooltipContent }) => {    
    
     // Function to handle click events on states
     const handleStateClick = (evt, abbreviation) => {
@@ -43,7 +41,7 @@ const MapChart = ({ setTooltipContent }) => {
                     fill="#000"
                     alignmentBaseline="middle"
                     style={{ fontFamily: "Arial", cursor: 'pointer' }}
-                    onClick={(evt) => handleStateClick(evt, state.abbreviation)}
+                    // onClick={(evt) => handleStateClick(evt, state.abbreviation)}
                     >
                     {state.abbreviation}
                     </text>
