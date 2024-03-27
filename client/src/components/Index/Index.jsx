@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UploadCSV from '../CSV/UploadCSV/UploadCSV'; // Import the UploadCSV component
 import './styles.css';
+import { useCSV } from '../../context/CSVContext';
 
 export const Index = () => {
+  const { records } = useCSV();
   const navigate = useNavigate();
   const [csvData, setCsvData] = useState([]);
 
@@ -21,6 +23,7 @@ export const Index = () => {
       <div className="index-content">
         <div className="btn-group">
           <UploadCSV onDataProcessed={setCsvData} />
+          Total Records: {records}
 
           <button onClick={() => handleNavigation('/view-list')}>View List</button>
           <button onClick={() => handleNavigation('/map')}>View Map</button>

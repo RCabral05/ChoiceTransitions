@@ -4,6 +4,8 @@ const CSVContext = createContext();
 
 export const CSVProvider = ({ children }) => {
   const [dataByState, setDataByState] = useState({});
+  const [records, setRecords] = useState(0);
+  console.log(dataByState);
 
   const updateCSVData = (csvData) => {
     const newStateData = csvData.reduce((acc, row) => {
@@ -13,11 +15,14 @@ export const CSVProvider = ({ children }) => {
       return acc;
     }, {});
 
+    const totalRecords = Object.values(newStateData).reduce((sum, currentArray) => sum + currentArray.length, 0);
+
     setDataByState(newStateData);
+    setRecords(totalRecords); 
   };
 
   return (
-    <CSVContext.Provider value={{ dataByState, updateCSVData }}>
+    <CSVContext.Provider value={{ dataByState, updateCSVData, records }}>
       {children}
     </CSVContext.Provider>
   );
