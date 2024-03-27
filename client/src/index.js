@@ -6,19 +6,26 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import HomePage from "./pages/HomePage";
 import StateMapPage from "./pages/StateMapPage";
+import MapPage from "./pages/MapPage";
+import ViewListPage from "./components/CSV/ViewList/ViewList";
+import { CSVProvider } from './context/CSVContext';
 // Create root element
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement);
 
 root.render(
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />}>
-          <Route index element={<HomePage />} />
-          <Route path="/state-map" element={<StateMapPage />} />
-          <Route path="*" element={<p>Route not found</p>} />
-        </Route>
-      </Routes>
+      <CSVProvider>
+        <Routes>
+          <Route path="/" element={<App />}>
+            <Route index element={<HomePage />} />
+            <Route path="/state-map" element={<StateMapPage />} />
+            <Route path="/map" element={<MapPage />} />
+            <Route path="/view-list" element={<ViewListPage />} />
+            <Route path="*" element={<p>Route not found</p>} />
+          </Route>
+        </Routes>
+      </CSVProvider>
     </BrowserRouter>
 );
 

@@ -17,14 +17,17 @@ async function fetchPage(url, apiKey, nextPageToken = '', callCounter) {
   return response.data;
 }
 
-// Function to recursively fetch all pages of results
-async function fetchAllResults(url, apiKey, allResults = [], nextPageToken = '', callCounter = 1) {
+// Function to recursively fetch all pages of results using Text Search
+async function fetchAllResults(query, apiKey, allResults = [], nextPageToken = '', callCounter = 1) {
+  const encodedQuery = encodeURIComponent(query);
+  console.log(encodedQuery);
+  const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodedQuery}&key=${apiKey}`;
   const data = await fetchPage(url, apiKey, nextPageToken, callCounter);
   allResults.push(...data.results);
 
   if (data.next_page_token) {
     // Increment the call counter for each subsequent fetch
-    return fetchAllResults(url, apiKey, allResults, data.next_page_token, callCounter + 1);
+    return fetchAllResults(query, apiKey, allResults, data.next_page_token, callCounter + 1);
   } else {
     console.log(`Total API calls made: ${callCounter}`);
     return allResults;
@@ -32,18 +35,19 @@ async function fetchAllResults(url, apiKey, allResults = [], nextPageToken = '',
 }
 
 router.post('/api/nearby-dentists', async (req, res) => {
-  const { latitude, longitude, radius } = req.body;
+  const { stateName } = req.body; // Expecting state name instead of latitude and longitude
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-  
-  const baseUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${radius}&type=dentist&key=${apiKey}`;
+  console.log('name',stateName);
+  // Constructing the query to find dentists in the specified state
+  const query = `dentists in ${stateName}`;
 
   try {
-    const results = await fetchAllResults(baseUrl, apiKey);
-    console.log(`Fetched all nearby dentists: ${results.length}`);
+    const results = await fetchAllResults(query, apiKey);
+    console.log(`Fetched all dentists in ${stateName}: ${results.length}`);
     res.json(results);
   } catch (error) {
-    console.error('Error fetching nearby dentists:', error.message);
-    res.status(500).send('Error fetching nearby dentists');
+    console.error('Error fetching dentists:', error.message);
+    res.status(500).send('Error fetching dentists');
   }
 });
 

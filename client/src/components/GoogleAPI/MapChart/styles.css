@@ -1,0 +1,35 @@
+.map{
+    /* border: 1px solid red; */
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 20px;
+    justify-content: center;
+    align-items: center;
+}
+.map-toolbar{
+    /* border: 1px solid blue; */
+    display: flex;
+    width: 75%;
+    align-items: center;
+}
+.map-toolbar label{
+    /* border: 1px solid blue; */
+    font-weight: bolder;
+    color: white;
+    margin-right: 10px;
+}
+.map-toolbar select{
+    /* border: 1px solid blue; */
+    width: 30%;
+    padding: 10px;
+    border-radius: 15px;
+}
+.map-con{
+    margin-top: 20px;
+    border: 2px solid white;
+    width: 75%;
+    background-color: #333;
+    padding: 10px;
+    border-radius: 15px;
+}

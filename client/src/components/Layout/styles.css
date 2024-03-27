@@ -5,5 +5,8 @@
     height: 100vh;
     background-color: #a19f9f;
     overflow: auto;
+    position: fixed;
+    top: 0;
+    background-color: #333;
     /* border: 1px solid red; */
 }

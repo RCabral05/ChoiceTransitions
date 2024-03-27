@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import GoogleMap from '../components/GoogleMap/GoogleMap'; // Ensure the import path is correct
+import GoogleMap from '../components/GoogleAPI/GoogleMap/GoogleMap'; // Ensure the import path is correct
 
 const StateMapPage = () => {
   const location = useLocation();
@@ -13,7 +13,6 @@ const StateMapPage = () => {
 
   return (
     <div>
-      <h1>{stateName}</h1>
       {stateName && <GoogleMap stateName={stateName} />}
     </div>
   );

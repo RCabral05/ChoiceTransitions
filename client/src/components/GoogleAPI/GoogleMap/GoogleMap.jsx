@@ -105,9 +105,7 @@ const GoogleMap = ({ stateName }) => {
     }
     try {
       const response = await axios.post(`${process.env.REACT_APP_BASE_URL}api/nearby-dentists`, {
-        latitude: position.lat,
-        longitude: position.lng,
-        radius,
+        stateName,
       });
       console.log('Nearby dentists:', response.data); // Here you can handle the response data
     } catch (error) {
@@ -116,18 +114,21 @@ const GoogleMap = ({ stateName }) => {
   };
 
   return (
-    <div>
-      <div ref={mapRef} style={{ height: '450px', width: '600px' }}></div>
-      <input
-        type="range"
-        min="1000"
-        max="50000"
-        value={radius}
-        onChange={(e) => setRadius(parseInt(e.target.value, 10))}
-        style={{ width: '600px', marginTop: '10px' }}
-      />
-      <p>Radius: {Math.round(radius)} meters</p>
-      <button onClick={fetchNearbyDentists}>Find Nearby Dentists</button>
+    <div className='map'>
+        <div className="map-toolbar">
+            <h1 style={{color:'white'}}>{stateName}</h1>
+        </div>
+        <div ref={mapRef} style={{ height: '550px', width: '75%', borderRadius:'10px' }}></div>
+        <input
+            type="range"
+            min="1000"
+            max="50000"
+            value={radius}
+            onChange={(e) => setRadius(parseInt(e.target.value, 10))}
+            style={{ width: '600px', marginTop: '10px' }}
+        />
+        <p style={{color:'white'}}>Radius: {Math.round(radius)} meters</p>
+        <button onClick={fetchNearbyDentists}>Find Nearby Dentists</button>
     </div>
   );
 };

@@ -1,0 +1,103 @@
+.viewList-container {
+    margin: 20px auto;
+    max-width: 80%;
+    overflow-x: auto; /* Allows table to be scrollable horizontally */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Adds subtle shadow around the table container */
+    border-radius: 8px; /* Rounds corners of the table container */
+  }
+  
+  .viewList-table {
+    width: 100%;
+    border-collapse: collapse; /* Removes space between borders */
+    margin-top: 10px;
+  }
+  
+  .viewList-table th, 
+  .viewList-table td {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid #ddd; /* Adds a light border to each row */
+  }
+  
+  .viewList-table th {
+    background-color: #f4f4f4; /* Light grey background for headers */
+    color: #333; /* Dark text color for contrast */
+    position: sticky;
+    top: 0; /* Makes headers sticky at the top when scrolling */
+  }
+  
+  .viewList-table tr:hover {
+    background-color: #f0f0f0; /* Slightly darker row background on hover */
+  }
+  
+  /* Style for the state selection dropdown */
+  .viewList-stateSelect {
+    margin: 20px auto;
+    display: block;
+    width: 200px; /* Fixed width for the select dropdown */
+    padding: 8px;
+    border-radius: 4px; /* Rounds corners of the select dropdown */
+    border: 1px solid #ccc; /* Light grey border */
+  }
+  
+  /* Button to clear filters */
+  .viewList-clearButton {
+    background-color: #007bff; /* Bootstrap primary color */
+    color: white;
+    padding: 8px 16px;
+    margin: 20px 5px 20px 0;
+    border: none;
+    border-radius: 4px; /* Rounded corners for the button */
+    cursor: pointer; /* Changes mouse cursor to pointer on hover */
+  }
+  
+  .viewList-clearButton:hover {
+    background-color: #0056b3; /* Darker shade on hover for feedback */
+  }
+  
+  /* Additional styles for header buttons to indicate active/inactive states */
+  .viewList-headerButton {
+    margin: 5px;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    background-color: #f8f9fa; /* Light background for inactive state */
+    border-radius: 4px; /* Rounded corners for the button */
+    cursor: pointer;
+  }
+  
+  .viewList-headerButton.active {
+    background-color: #007bff; /* Highlight active buttons */
+    color: white;
+  }
+  
+  .viewList-stateSelect {
+    padding: 8px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  
+  .viewList-recordCount {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+  }
+
+  .header-selected {
+    background-color: #e9ecef; /* Light grey background for selected headers */
+    padding: 6px 12px;
+    margin: 0 10px 10px 0;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .header-unselected {
+    background-color: #f8f9fa; /* Slightly lighter for unselected headers */
+    color: #6c757d; /* Dim the text color to indicate it's unselected */
+    padding: 6px 12px;
+    margin: 0 10px 10px 0;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  
