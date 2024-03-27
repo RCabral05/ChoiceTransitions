@@ -2,13 +2,14 @@ import React, { useState, useMemo } from 'react';
 import { useCSV } from '../../../context/CSVContext';
 import './styles.css';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import CompareData from './CompareData/CompareData';
 
 const ViewList = () => {
-  const { dataByState } = useCSV();
+  const { dataByState, dataBySheet } = useCSV();
   const [selectedState, setSelectedState] = useState('');
   const [selectedHeaders, setSelectedHeaders] = useState([]);
   const [headersOrder, setHeadersOrder] = useState([]);
-
+  const [activeView, setActiveView] = useState('viewList');
   // Sort states alphabetically
   const states = Object.keys(dataByState).sort();
 
@@ -52,56 +53,72 @@ const ViewList = () => {
 
   return (
     <>
-      <div className="view-list-select-container">
-        <select onChange={handleStateChange} value={selectedState} className="view-list-state-select">
-          <option value="">Select a State</option>
-          {states.map(state => (
-            <option key={state} value={state}>{state}</option>
-          ))}
-        </select>
+      <div className="view-toggle-buttons">
+        <button onClick={() => setActiveView('viewList')}>View List</button>
+        <button onClick={() => setActiveView('compareData')}>Compare Data</button>
       </div>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="headers">
-          {(provided) => (
-            <div {...provided.droppableProps} ref={provided.innerRef} className="view-list-headers-container">
-              {headersOrder.map((header, index) => (
-                <Draggable key={header} draggableId={header} index={index}>
-                  {(provided) => (
-                    <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={selectedHeaders[header] ? "header-selected" : "header-unselected"} onClick={() => toggleHeaderSelected(header)}>
-                      {header}
-                    </div>
-                  )}
-                </Draggable>
+  
+      {activeView === 'viewList' && (
+        <>
+          <div className="view-list-select-container">
+            <select onChange={handleStateChange} value={selectedState} className="view-list-state-select">
+              <option value="">Select a State</option>
+              {states.map(state => (
+                <option key={state} value={state}>{state}</option>
               ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
-      <div className="view-list-container">
-        <p className="view-list-record-count">Number of Records: {sortedData.length}</p>
-        <table className="view-list-table">
-            <thead>
-                <tr>
-                {headersOrder.filter(header => selectedHeaders[header]).map((header, index) => (
-                    <th key={index}>{header}</th>
-                ))}
-                </tr>
-            </thead>
-            <tbody>
-                {sortedData.map((row, rowIndex) => (
-                <tr key={rowIndex}>
+            </select>
+          </div>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="headers">
+              {(provided) => (
+                <div {...provided.droppableProps} ref={provided.innerRef} className="view-list-headers-container">
+                  {headersOrder.map((header, index) => (
+                    <Draggable key={header} draggableId={header} index={index}>
+                      {(provided) => (
+                        <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={selectedHeaders[header] ? "header-selected" : "header-unselected"} onClick={() => toggleHeaderSelected(header)}>
+                          {header}
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+          <div className="view-list-container">
+            <p className="view-list-record-count">Number of Records: {sortedData.length}</p>
+            <table className="view-list-table">
+                <thead>
+                    <tr>
                     {headersOrder.filter(header => selectedHeaders[header]).map((header, index) => (
-                    <td key={index}>{row[header]}</td>
+                        <th key={index}>{header}</th>
                     ))}
-                </tr>
-                ))}
-            </tbody>
-        </table>
-
-      </div>
+                    </tr>
+                </thead>
+                <tbody>
+                    {sortedData.map((row, rowIndex) => (
+                    <tr key={rowIndex}>
+                        {headersOrder.filter(header => selectedHeaders[header]).map((header, index) => (
+                        <td key={index}>{row[header]}</td>
+                        ))}
+                    </tr>
+                    ))}
+                </tbody>
+            </table>
+          </div>
+        </>
+      )}
+  
+      {activeView === 'compareData' && (
+        <div>
+          {/* Placeholder for Compare Data view content */}
+          <p>Compare Data view is under construction.</p>
+          <CompareData stateData={dataByState} sheetData={dataBySheet}/>
+        </div>
+      )}
     </>
-  );
+  );  
 };
 
 export default ViewList;
