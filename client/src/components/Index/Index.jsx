@@ -26,8 +26,6 @@ export const Index = () => {
           Total Records: {records}
 
           <button onClick={() => handleNavigation('/view-list')}>View List</button>
-          <button onClick={() => handleNavigation('/map')}>View Map</button>
-          <button onClick={() => handleNavigation('/yet-another-path')}>Yet Another Action</button>
         </div>
       </div>
     </div>

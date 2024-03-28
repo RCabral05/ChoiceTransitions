@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100vh;
+  height: 90vh;
 }
 .index-content{
   /* border: 2px solid white; */
@@ -21,12 +21,12 @@
 .btn-group{
   display: flex;
   flex-direction: column;
+  justify-content: center;
   width: 90%;
   height: 100%;
 }
 .btn-group button{
   height: 20%;
-  margin-bottom: 2.5%;
   margin-top: 2.5%;
   border-radius: 15px;
 }

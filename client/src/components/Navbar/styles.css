@@ -1,0 +1,24 @@
+.navbar{
+    width: 100%;
+    background-color: aliceblue;
+    position: fixed;
+    top:0;
+}
+.navbar-content{
+    display: flex;
+    flex-direction: row;
+    width: 90%;
+    height: 5vh;
+    margin: auto;
+    justify-content: space-between;
+    align-items: center;
+}
+.navbar-title{
+
+}
+.navbar-links{
+
+}
+.navbar-links a{
+    margin-left: 10px;
+}
