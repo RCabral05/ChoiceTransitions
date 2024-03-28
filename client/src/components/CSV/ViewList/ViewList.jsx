@@ -112,8 +112,6 @@ const ViewList = () => {
   
       {activeView === 'compareData' && (
         <div>
-          {/* Placeholder for Compare Data view content */}
-          <p>Compare Data view is under construction.</p>
           <CompareData stateData={sortedData} sheetData={dataBySheet} state={selectedState}/>
         </div>
       )}

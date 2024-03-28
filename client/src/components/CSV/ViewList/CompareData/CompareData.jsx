@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import './styles.css';
 
 const CompareData = ({stateData, sheetData, state}) => {
     const [data, setData] = useState([]);
     const [combinedData, setCombinedData] = useState([]);
     console.log('excel data', data);
     console.log('combined data', combinedData);
+    const [selectedHeaders, setSelectedHeaders] = useState({});
+    const [headersOrder, setHeadersOrder] = useState([]);
 
     useEffect(() => {
         // console.log("Sheet Data:", sheetData);
@@ -23,7 +27,15 @@ const CompareData = ({stateData, sheetData, state}) => {
             
             const combined = combineAndFilterData(stateData, dataToCompare);
             setCombinedData(combined);
+            if (combined.length > 0) {
+                const allHeaders = Object.keys(combined[0]);
+                setHeadersOrder(allHeaders);
+                const headersSelection = allHeaders.reduce((acc, header) => ({ ...acc, [header]: true }), {});
+                setSelectedHeaders(headersSelection);
+            }
         }
+
+      
     }, [sheetData, stateData, state]);
 
     const combineAndFilterData = (dataOne, dataTwo) => {
@@ -70,62 +82,70 @@ const CompareData = ({stateData, sheetData, state}) => {
     
         return uniqueData;
     };
+
+
+
+    const onDragEnd = (result) => {
+        if (!result.destination) return;
+        const items = Array.from(headersOrder);
+        const [reorderedItem] = items.splice(result.source.index, 1);
+        items.splice(result.destination.index, 0, reorderedItem);
+        setHeadersOrder(items);
+    };
+
+    const toggleHeaderSelected = (header) => {
+        setSelectedHeaders(prevHeaders => ({
+            ...prevHeaders,
+            [header]: !prevHeaders[header]
+        }));
+    };
+
     
     
 
 
     return (
         <>
-            <p>Combined Data Length: {combinedData.length}</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Company Name</th>
-                        <th>Contact Full Name</th>
-                        <th>Company City</th>
-                        <th>Company State Abbr</th>
-                        <th>Company Street 1</th>
-                        <th>Company Street 2</th>
-                        <th>Company Post Code</th>
-                        <th>Contact Phone 1</th>
-                        <th>Email 1</th>
-                        <th>Personal Email</th>
-                        <th>Title</th>
-                        <th>Website</th>
-                        <th>List</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {combinedData
-                        .slice() // Create a copy to avoid mutating the original state when sorting
-                        .sort((a, b) => {
-                        // Use a fallback ('') if "Contact Full Name" is undefined or null
-                        const nameA = a["Contact Full Name"] || '';
-                        const nameB = b["Contact Full Name"] || '';
-                        return nameA.localeCompare(nameB);
-                        })
-                        .map((item, index) => (
-                        <tr key={index}>
-                            <td>{item["Company Name"] || 'N/A'}</td>
-                            <td>{item["Contact Full Name"] || 'N/A'}</td>
-                            <td>{item["Company City"] || 'N/A'}</td>
-                            <td>{item["Company State Abbr"] || 'N/A'}</td>
-                            <td>{item["Company Street 1"] || 'N/A'}</td>
-                            <td>{item["Company Street 2"] || 'N/A'}</td>
-                            <td>{item["Company Post Code"] || 'N/A'}</td>
-                            <td>{item["Contact Phone 1"] || 'N/A'}</td>
-                            <td>{item["Email 1"] || 'N/A'}</td>
-                            <td>{item["Personal Email"] || 'N/A'}</td>
-                            <td>{item["Title"] || 'N/A'}</td>
-                            <td>{item["Website"] || 'N/A'}</td>
-                            <td>{item["List"] || 'Seamless'}</td>
-                        </tr>
-                        ))
-                    }
-                </tbody>
+        <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="headers" direction="horizontal">
+                {(provided) => (
+                    <div ref={provided.innerRef} {...provided.droppableProps} className="header-container">
+                        {headersOrder.map((header, index) => (
+                            <Draggable key={header} draggableId={header} index={index}>
+                                {(provided) => (
+                                    <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="header-item">
+                                        <input type="checkbox" checked={selectedHeaders[header]} onChange={() => toggleHeaderSelected(header)} />
+                                        {header}
+                                    </div>
+                                )}
+                            </Draggable>
+                        ))}
+                        {provided.placeholder}
+                    </div>
+                )}
+            </Droppable>
+        </DragDropContext>
 
-            </table>
-        </>
+        <p>Combined Data Length: {combinedData.length}</p>
+        <table>
+            <thead>
+                <tr>
+                    {headersOrder.filter(header => selectedHeaders[header]).map(header => (
+                        <th key={header}>{header}</th>
+                    ))}
+                </tr>
+            </thead>
+            <tbody>
+                {combinedData.map((item, index) => (
+                    <tr key={index}>
+                        {headersOrder.filter(header => selectedHeaders[header]).map(header => (
+                            <td key={header}>{item[header] || 'N/A'}</td>
+                        ))}
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    </>
     );
     
 };

@@ -2,6 +2,7 @@ import React from 'react';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { useCSV } from '../../../context/CSVContext'; // Adjust the path as needed
+import './styles.css';
 
 const UploadCSV = () => {
   const { updateCSVData, updateExcelData, uploadedFiles, removeFileData } = useCSV(); // Use the updated custom hooks
@@ -44,7 +45,7 @@ const UploadCSV = () => {
   };
 
   return (
-    <div>
+    <div className='upload'>
       <input type="file" accept=".csv, .xlsx, .xls" multiple onChange={handleFileChange} />
       <div>
         <h3>Uploaded Files:</h3>
