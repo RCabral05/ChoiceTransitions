@@ -92,6 +92,7 @@ const CompareData = ({stateData, sheetData, state}) => {
                         <th>Personal Email</th>
                         <th>Title</th>
                         <th>Website</th>
+                        <th>List</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -117,6 +118,7 @@ const CompareData = ({stateData, sheetData, state}) => {
                             <td>{item["Personal Email"] || 'N/A'}</td>
                             <td>{item["Title"] || 'N/A'}</td>
                             <td>{item["Website"] || 'N/A'}</td>
+                            <td>{item["List"] || 'Seamless'}</td>
                         </tr>
                         ))
                     }
