@@ -31,10 +31,16 @@ const CompareData = ({stateData, sheetData, state}) => {
         const combined = [...dataOne, ...dataTwo];
         const uniqueData = [];
         const duplicates = []; // To store duplicates for logging
-    
+      
         // Step 2: Filter out duplicates
         combined.forEach(item => {
+
+            if (!item["Contact Full Name"]) {
+                uniqueData.push(item); // Consider it unique and skip further checks
+                return; // Exit this iteration
+            }
             const duplicateIndex = uniqueData.findIndex(uniqueItem => {
+                if (!uniqueItem["Contact Full Name"]) return false;
                 const isFullNameMatch = uniqueItem["Contact Full Name"] === item["Contact Full Name"];
                 if (!isFullNameMatch) return false; // Names don't match; proceed to the next criteria
     
@@ -90,25 +96,32 @@ const CompareData = ({stateData, sheetData, state}) => {
                 </thead>
                 <tbody>
                     {combinedData
-                        .sort((a, b) => a["Contact Full Name"].localeCompare(b["Contact Full Name"]))
+                        .slice() // Create a copy to avoid mutating the original state when sorting
+                        .sort((a, b) => {
+                        // Use a fallback ('') if "Contact Full Name" is undefined or null
+                        const nameA = a["Contact Full Name"] || '';
+                        const nameB = b["Contact Full Name"] || '';
+                        return nameA.localeCompare(nameB);
+                        })
                         .map((item, index) => (
-                            <tr key={index}>
-                                <td>{item["Company Name"]}</td>
-                                <td>{item["Contact Full Name"]}</td>
-                                <td>{item["Company City"]}</td>
-                                <td>{item["Company State Abbr"]}</td>
-                                <td>{item["Company Street 1"]}</td>
-                                <td>{item["Company Street 2"]}</td>
-                                <td>{item["Company Post Code"]}</td>
-                                <td>{item["Contact Phone 1"]}</td>
-                                <td>{item["Email 1"]}</td>
-                                <td>{item["Personal Email"]}</td>
-                                <td>{item["Title"]}</td>
-                                <td>{item["Website"]}</td>
-                            </tr>
+                        <tr key={index}>
+                            <td>{item["Company Name"] || 'N/A'}</td>
+                            <td>{item["Contact Full Name"] || 'N/A'}</td>
+                            <td>{item["Company City"] || 'N/A'}</td>
+                            <td>{item["Company State Abbr"] || 'N/A'}</td>
+                            <td>{item["Company Street 1"] || 'N/A'}</td>
+                            <td>{item["Company Street 2"] || 'N/A'}</td>
+                            <td>{item["Company Post Code"] || 'N/A'}</td>
+                            <td>{item["Contact Phone 1"] || 'N/A'}</td>
+                            <td>{item["Email 1"] || 'N/A'}</td>
+                            <td>{item["Personal Email"] || 'N/A'}</td>
+                            <td>{item["Title"] || 'N/A'}</td>
+                            <td>{item["Website"] || 'N/A'}</td>
+                        </tr>
                         ))
                     }
                 </tbody>
+
             </table>
         </>
     );
