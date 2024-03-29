@@ -1,103 +1,97 @@
-.viewList-container {
-    margin: 20px auto;
-    max-width: 80%;
-    overflow-x: auto; /* Allows table to be scrollable horizontally */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Adds subtle shadow around the table container */
-    border-radius: 8px; /* Rounds corners of the table container */
-  }
-  
-  .viewList-table {
+/* General styles for the view list component */
+.viewList-con{
+    width: 90%;
+    height: 90vh;
+    margin: auto;
+}
+.View-toggle-buttons{
+    display: flex;
     width: 100%;
-    border-collapse: collapse; /* Removes space between borders */
+    margin: auto;
     margin-top: 10px;
-  }
-  
-  .viewList-table th, 
-  .viewList-table td {
-    text-align: left;
-    padding: 12px;
-    border-bottom: 1px solid #ddd; /* Adds a light border to each row */
-  }
-  
-  .viewList-table th {
-    background-color: #f4f4f4; /* Light grey background for headers */
-    color: #333; /* Dark text color for contrast */
-    position: sticky;
-    top: 0; /* Makes headers sticky at the top when scrolling */
-  }
-  
-  .viewList-table tr:hover {
-    background-color: #f0f0f0; /* Slightly darker row background on hover */
-  }
-  
-  /* Style for the state selection dropdown */
-  .viewList-stateSelect {
-    margin: 20px auto;
-    display: block;
-    width: 200px; /* Fixed width for the select dropdown */
-    padding: 8px;
-    border-radius: 4px; /* Rounds corners of the select dropdown */
-    border: 1px solid #ccc; /* Light grey border */
-  }
-  
-  /* Button to clear filters */
-  .viewList-clearButton {
-    background-color: #007bff; /* Bootstrap primary color */
+    margin-bottom: 10px;
+}
+.viewList-section{
+    display: flex;
+    align-items: center;
+    
+}
+.viewList-section button{
+    height: 25px;
+    margin-right: 10px;
+}
+.viewList-section p{
     color: white;
-    padding: 8px 16px;
-    margin: 20px 5px 20px 0;
-    border: none;
-    border-radius: 4px; /* Rounded corners for the button */
-    cursor: pointer; /* Changes mouse cursor to pointer on hover */
+}
+.View-toggle-buttons button{
+    margin-left: 10px;
+}
+/* Drag-and-drop headers container */
+.View-list-headers-container{
+    display: flex; /* Flex layout to arrange headers horizontally */
+    flex-direction: column;
+    width: 90%;
+    margin: auto;
+    border-radius: 4px; /* Rounded corners */
   }
   
-  .viewList-clearButton:hover {
-    background-color: #0056b3; /* Darker shade on hover for feedback */
+  /* Individual draggable header */
+  .header-selected, .header-unselected {
+    padding: 6px 12px;
+    border: 1px solid #d1d1d1; /* Border color for headers */
+    border-radius: 20px; /* Rounded pill shape */
+    background-color: #ffffff; /* White background for each header */
+    cursor: grab; /* Cursor indicates the item is draggable */
+    user-select: none; /* Prevent text selection while dragging */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Soft shadow for depth */
+    transition: background-color 0.2s ease; /* Smooth transition for background color */
   }
   
-  /* Additional styles for header buttons to indicate active/inactive states */
-  .viewList-headerButton {
-    margin: 5px;
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    background-color: #f8f9fa; /* Light background for inactive state */
-    border-radius: 4px; /* Rounded corners for the button */
-    cursor: pointer;
-  }
-  
-  .viewList-headerButton.active {
-    background-color: #007bff; /* Highlight active buttons */
-    color: white;
-  }
-  
-  .viewList-stateSelect {
-    padding: 8px;
-    margin-bottom: 20px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-  }
-  
-  .viewList-recordCount {
-    margin-top: 10px;
-    margin-bottom: 20px;
-    font-size: 16px;
-  }
-
+  /* Style for a header that is selected to be displayed */
   .header-selected {
-    background-color: #e9ecef; /* Light grey background for selected headers */
-    padding: 6px 12px;
-    margin: 0 10px 10px 0;
-    border-radius: 4px;
-    cursor: pointer;
+    background-color: #007bff; /* Highlight color for selected headers */
+    color: white; /* White text color for contrast */
+    border-color: #007bff; /* Border color matches background */
   }
   
+  /* Style for a header that is not selected to be displayed */
   .header-unselected {
-    background-color: #f8f9fa; /* Slightly lighter for unselected headers */
-    color: #6c757d; /* Dim the text color to indicate it's unselected */
-    padding: 6px 12px;
-    margin: 0 10px 10px 0;
-    border-radius: 4px;
-    cursor: pointer;
+    &:hover {
+      background-color: #f0f0f0; /* Slight background change on hover for unselected headers */
+    }
   }
   
+
+  .Modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .Modal {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  .Modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
   

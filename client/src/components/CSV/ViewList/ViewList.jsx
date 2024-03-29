@@ -10,6 +10,7 @@ const ViewList = () => {
   const [selectedHeaders, setSelectedHeaders] = useState([]);
   const [headersOrder, setHeadersOrder] = useState([]);
   const [activeView, setActiveView] = useState('viewList');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   // Sort states alphabetically
   const states = Object.keys(dataByState).sort();
 
@@ -52,42 +53,49 @@ const ViewList = () => {
   
 
   return (
-    <>
-      <div className="view-toggle-buttons">
-        <button onClick={() => setActiveView('viewList')}>View List</button>
-        <button onClick={() => setActiveView('compareData')}>Compare Data</button>
-      </div>
-  
-      {activeView === 'viewList' && (
-        <>
-          <div className="view-list-select-container">
+    <div className='viewList-con'>
+      <div className="View-toggle-buttons">
+        <div className="View-list-select-container">
             <select onChange={handleStateChange} value={selectedState} className="view-list-state-select">
               <option value="">Select a State</option>
               {states.map(state => (
                 <option key={state} value={state}>{state}</option>
               ))}
             </select>
-          </div>
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="headers">
-              {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef} className="view-list-headers-container">
-                  {headersOrder.map((header, index) => (
-                    <Draggable key={header} draggableId={header} index={index}>
-                      {(provided) => (
-                        <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={selectedHeaders[header] ? "header-selected" : "header-unselected"} onClick={() => toggleHeaderSelected(header)}>
-                          {header}
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-          <div className="view-list-container">
-            <p className="view-list-record-count">Number of Records: {sortedData.length}</p>
+        </div>
+        {activeView === 'compareData' && <button onClick={() => setActiveView('viewList')}>View List</button>}
+        {activeView === 'viewList' && <button onClick={() => setActiveView('compareData')}>Compare Data</button>}
+      </div>
+  
+      {activeView === 'viewList' && (
+        <>
+            <div className="viewList-section">
+                <button onClick={() => setIsModalOpen(true)}>Edit Headers</button>
+                <p className="View-list-record-count">Number of Records: {sortedData.length}</p>
+            </div>
+          
+
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+                <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable droppableId="headers">
+                    {(provided) => (
+                    <div {...provided.droppableProps} ref={provided.innerRef} className="View-list-headers-container">
+                        {headersOrder.map((header, index) => (
+                        <Draggable key={header} draggableId={header} index={index}>
+                            {(provided) => (
+                            <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={selectedHeaders[header] ? "header-selected" : "header-unselected"} onClick={() => toggleHeaderSelected(header)}>
+                                {header}
+                            </div>
+                            )}
+                        </Draggable>
+                        ))}
+                        {provided.placeholder}
+                    </div>
+                    )}
+                </Droppable>
+                </DragDropContext>
+            </Modal>
+          <div className="View-list-container">
             <table className="view-list-table">
                 <thead>
                     <tr>
@@ -115,8 +123,29 @@ const ViewList = () => {
           <CompareData stateData={sortedData} sheetData={dataBySheet} state={selectedState}/>
         </div>
       )}
-    </>
+    </div>
   );  
 };
+
+
+const Modal = ({ isOpen, children, onClose }) => {
+    if (!isOpen) return null;
+  
+    // Function to stop click event propagation
+    const handleModalContentClick = (e) => {
+      e.stopPropagation();
+    };
+  
+    return (
+      <div className="Modal-overlay" onClick={onClose}>
+        <div className="Modal" onClick={handleModalContentClick}>
+          <button className="Modal-close" onClick={onClose}>×</button>
+          {children}
+        </div>
+      </div>
+    );
+  };
+  
+  
 
 export default ViewList;

@@ -27,7 +27,8 @@
   color: white;
 }
 .btn-group button{
-  height: 20%;
+  height: 10%;
   margin-top: 2.5%;
   border-radius: 15px;
+  border: none;
 }

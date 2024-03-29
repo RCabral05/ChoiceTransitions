@@ -2,6 +2,7 @@ import React from 'react';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { useCSV } from '../../../context/CSVContext'; // Adjust the path as needed
+import DeleteIcon from '@mui/icons-material/Delete';
 import './styles.css';
 
 const UploadCSV = () => {
@@ -48,12 +49,16 @@ const UploadCSV = () => {
     <div className='upload'>
       <input type="file" accept=".csv, .xlsx, .xls" multiple onChange={handleFileChange} />
       <div>
-        <h3>Uploaded Files:</h3>
+        <h3><span style={{color:'orange'}}>\ </span>Uploaded <span style={{color:'orange'}}>Files</span>:</h3>
         <ul>
           {uploadedFiles.map(fileName => (
-            <li key={fileName}>
-              {fileName} <button onClick={() => removeFileData(fileName)}>Remove</button>
+            <li key={fileName} style={{ display: 'flex', alignItems: 'center' }}>
+                <span style={{ lineHeight: '24px' }}>{fileName}</span> {/* Ensure the line height matches the icon height */}
+                <button style={{ marginLeft:'10px', background: 'none', padding: '0', margin: '0', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => removeFileData(fileName)}>
+                <DeleteIcon style={{ height: '24px', width: '24px', background: 'none', color: 'white' }}/>
+                </button>
             </li>
+       
           ))}
         </ul>
       </div>

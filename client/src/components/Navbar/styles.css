@@ -1,8 +1,9 @@
 .navbar{
     width: 100%;
-    background-color: aliceblue;
+    /* border: 1px solid red; */
     position: fixed;
     top:0;
+    background-color: #333;
 }
 .navbar-content{
     display: flex;
@@ -14,11 +15,15 @@
     align-items: center;
 }
 .navbar-title{
-
+    font-weight: bolder;
+    color: white;
 }
 .navbar-links{
-
+    
 }
 .navbar-links a{
-    margin-left: 10px;
+    margin-left: 20px;
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
 }
