@@ -51,52 +51,51 @@ const CompareData = ({stateData, sheetData, state}) => {
                 uniqueData.push(item); // Consider it unique and skip further checks
                 return; // Exit this iteration
             }
-            
-            // Split name into parts and prepare for comparison
+    
             const itemNameParts = item["Contact Full Name"].split(' ').filter(Boolean);
             const lastName = itemNameParts[itemNameParts.length - 1].toLowerCase();
             const firstName = itemNameParts[0].toLowerCase();
     
-            const duplicateIndex = uniqueData.findIndex(uniqueItem => {
-                if (!uniqueItem["Contact Full Name"]) return false;
+            let foundDuplicate = false;
+            
+            for (let i = 0; i < uniqueData.length; i++) {
+                const uniqueItem = uniqueData[i];
+                if (!uniqueItem["Contact Full Name"]) continue;
     
                 const uniqueNameParts = uniqueItem["Contact Full Name"].split(' ').filter(Boolean);
                 const uniqueLastName = uniqueNameParts[uniqueNameParts.length - 1].toLowerCase();
                 const uniqueFirstName = uniqueNameParts[0].toLowerCase();
     
-                // Check last names match
-                if (lastName !== uniqueLastName) return false;
-    
-                // If last names match, check first names
-                if (firstName !== uniqueFirstName) return false;
-    
-                // If first names also match, check Company Street 1
-                if (uniqueItem["Company Street 1"] !== item["Company Street 1"]) return false;
-    
-                // If addresses match, check emails
-                const bothHaveEmails = uniqueItem["Email 1"] && item["Email 1"];
-                const bothLackEmails = !uniqueItem["Email 1"] && !item["Email 1"];
-                const emailsMatch = uniqueItem["Email 1"] === item["Email 1"];
-    
-                // Determine duplicate based on email criteria
-                if (bothLackEmails || (bothHaveEmails && emailsMatch)) {
-                    // It's a duplicate if both lack emails or both have matching emails
-                    return true;
-                } else if (uniqueItem["Email 1"] && !item["Email 1"] || !uniqueItem["Email 1"] && item["Email 1"]) {
-                    // Not a duplicate if only one item has an email
-                    return false;
+                // Check last names and first names match
+                if (lastName === uniqueLastName && firstName === uniqueFirstName) {
+                    // Check if addresses match
+                    if (uniqueItem["Company Street 1"] === item["Company Street 1"]) {
+                        // Now, handle email logic according to new rules
+                        if (uniqueItem["Email 1"] && !item["Email 1"]) {
+                            // The existing item has an email, and the new item does not; consider it a duplicate, but do nothing (prefer the one with the email).
+                            foundDuplicate = true;
+                            break;
+                        } else if (!uniqueItem["Email 1"] && item["Email 1"]) {
+                            // The new item has an email, and the existing item does not; replace the existing item with the new one.
+                            uniqueData[i] = item; // Replace with the item that has an email.
+                            foundDuplicate = true;
+                            break;
+                        } else if (uniqueItem["Email 1"] === item["Email 1"]) {
+                            // Both items have the same email; consider it a duplicate, do nothing.
+                            foundDuplicate = true;
+                            break;
+                        }
+                        // If both have emails and they don't match, or both don't have emails, they are considered non-duplicates, hence do nothing here.
+                    }
                 }
+            }
     
-                // If none of the conditions match, it's not a duplicate
-                return false;
-            });
-    
-            if (duplicateIndex === -1) {
-                // No duplicate found; item is unique
+            if (!foundDuplicate) {
+                // No duplicate found according to the new rules; item is unique.
                 uniqueData.push(item);
             } else {
-                // Duplicate found; log the duplicate pair
-                duplicates.push({ uniqueItem: uniqueData[duplicateIndex], duplicateItem: item });
+                // Duplicate found; log the duplicate pair or handle accordingly.
+                duplicates.push(item); // You might want to adjust what gets pushed here based on your needs.
             }
         });
     
@@ -105,6 +104,7 @@ const CompareData = ({stateData, sheetData, state}) => {
     
         return uniqueData;
     };
+    
     
 
 
