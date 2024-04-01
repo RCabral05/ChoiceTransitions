@@ -9,6 +9,8 @@ const CompareData = ({stateData, sheetData, state}) => {
     console.log('combined data', combinedData);
     const [selectedHeaders, setSelectedHeaders] = useState({});
     const [headersOrder, setHeadersOrder] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
 
     useEffect(() => {
         // console.log("Sheet Data:", sheetData);
@@ -149,30 +151,51 @@ const CompareData = ({stateData, sheetData, state}) => {
     
 
     
+    const Modal = ({ isOpen, children, onClose }) => {
+        if (!isOpen) return null;
+      
+        // Function to stop click event propagation
+        const handleModalContentClick = (e) => {
+          e.stopPropagation();
+        };
+      
+        return (
+          <div className="Modal-overlay" onClick={onClose}>
+            <div className="Modal" onClick={handleModalContentClick}>
+              <button className="Modal-close" onClick={onClose}>×</button>
+              {children}
+            </div>
+          </div>
+        );
+      };
     
 
 
     return (
         <>
-        <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="headers" direction="horizontal">
-                {(provided) => (
-                    <div ref={provided.innerRef} {...provided.droppableProps} className="header-container">
+            <button onClick={() => setIsModalOpen(true)}>Edit Headers</button>
+
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+                <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable droppableId="headers">
+                    {(provided) => (
+                    <div {...provided.droppableProps} ref={provided.innerRef} className="View-list-headers-container">
                         {headersOrder.map((header, index) => (
-                            <Draggable key={header} draggableId={header} index={index}>
-                                {(provided) => (
-                                    <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="header-item">
-                                        <input type="checkbox" checked={selectedHeaders[header]} onChange={() => toggleHeaderSelected(header)} />
-                                        {header}
-                                    </div>
-                                )}
-                            </Draggable>
+                        <Draggable key={header} draggableId={header} index={index}>
+                            {(provided) => (
+                            <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={selectedHeaders[header] ? "header-selected" : "header-unselected"} onClick={() => toggleHeaderSelected(header)}>
+                                {header}
+                            </div>
+                            )}
+                        </Draggable>
                         ))}
                         {provided.placeholder}
                     </div>
-                )}
-            </Droppable>
-        </DragDropContext>
+                    )}
+                </Droppable>
+                </DragDropContext>
+            </Modal>
+
         <div className="compare-toolbar">
             <p style={{color:'white'}}>Combined Data Length: {combinedData.length}</p>
             <button onClick={exportToCSV}>Export</button>
