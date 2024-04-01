@@ -71,7 +71,7 @@ const ViewList = () => {
         <>
             <div className="viewList-section">
                 <button onClick={() => setIsModalOpen(true)}>Edit Headers</button>
-                <p className="View-list-record-count">Number of Records: {sortedData.length}</p>
+                <p className="View-list-record-count">Number of Records (Seamless): {sortedData.length}</p>
             </div>
           
 

@@ -31,4 +31,58 @@
   .header-item input[type="checkbox"] {
     margin: 0;
   }
+  .compare-toolbar{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .CompareData-table-container {
+    width: 100%;
+    overflow: auto;
+    border-radius: 10px;
+
+  }
+  .CompareData-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #f8f8f8; /* Light shade of gray for contrast */
+    color: #333; /* Dark text for readability */
+  }
+  
+  .CompareData-thead {
+    position: sticky;
+    top: 0;
+    background-color: #666; /* Darker shade for the header */
+    color: #fff; /* White text for contrast */
+    z-index: 1; /* Ensure the header is above other content when scrolling */
+  }
+  
+  .CompareData-th, .CompareData-td {
+    text-align: left;
+    padding: 8px;
+    border-bottom: 1px solid #ddd; /* Light border for separation */
+  }
+  
+  .CompareData-tr:nth-child(even) {
+    background-color: #eee; /* Zebra striping for rows */
+  }
+  
+  /* Scrollbar styles for the table container (optional) */
+  .CompareData-table-container::-webkit-scrollbar {
+    width: 12px;
+  }
+  
+  .CompareData-table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  .CompareData-table-container::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+  
+  .CompareData-table-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+  
   
