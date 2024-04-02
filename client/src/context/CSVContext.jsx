@@ -5,7 +5,7 @@ const CSVContext = createContext();
 export const CSVProvider = ({ children }) => {
   const [dataByState, setDataByState] = useState({});
   const [records, setRecords] = useState(0);
-
+  const [deletedNames, setDeletedNames] = useState([]);
   const [dataBySheet, setDataBySheet] = useState({});
   const [excelRecords, setExcelRecords] = useState(0);
   const [uploadedFiles, setUploadedFiles] = useState([]); // Added to track uploaded files
@@ -37,7 +37,8 @@ export const CSVProvider = ({ children }) => {
     }, {});
 
     const totalRecords = excelData.reduce((sum, { data }) => sum + data.length, 0);
-
+    // console.log('new sheet', newSheetData);
+    setDeletedNames(newSheetData.Deleted);
     setDataBySheet(newSheetData);
     setExcelRecords(excelRecords + totalRecords); // Increment excelRecords count
 
@@ -62,7 +63,8 @@ export const CSVProvider = ({ children }) => {
       dataBySheet, 
       updateExcelData, 
       excelRecords, 
-      uploadedFiles, 
+      uploadedFiles,
+      deletedNames,
       removeFileData 
     }}>
       {children}
