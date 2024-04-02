@@ -10,13 +10,12 @@ const CompareData = ({stateData, sheetData, state}) => {
     const [selectedHeaders, setSelectedHeaders] = useState({});
     const [headersOrder, setHeadersOrder] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const removeTitles = [
+        '',
+    ]; //FILL WITH TITLES THAT NEED TO BE REMOVED
 
 
     useEffect(() => {
-        // console.log("Sheet Data:", sheetData);
-        // console.log("State Data:", stateData);
-        // console.log("State:", state);
-
         // Iterate over sheetData as an object
         Object.entries(sheetData).forEach(([sheetName, data]) => {
             if(sheetName === state){
@@ -26,18 +25,16 @@ const CompareData = ({stateData, sheetData, state}) => {
 
         if (stateData && sheetData[state]) {
             const dataToCompare = sheetData[state];
-            
             const combined = combineAndFilterData(stateData, dataToCompare);
             setCombinedData(combined);
             if (combined.length > 0) {
                 const allHeaders = Object.keys(combined[0]);
-                console.log(allHeaders);
+                // console.log(allHeaders);
                 setHeadersOrder(allHeaders);
                 const headersSelection = allHeaders.reduce((acc, header) => ({ ...acc, [header]: true }), {});
                 setSelectedHeaders(headersSelection);
             }
         }
-
       
     }, [sheetData, stateData, state]);
 
@@ -45,8 +42,20 @@ const CompareData = ({stateData, sheetData, state}) => {
         const combined = [...dataOne, ...dataTwo];
         const uniqueData = [];
         const duplicates = []; // To store duplicates for logging
+        const entriesToRemove = [];
+
+        const filteredCombined = combined.filter(item => {
+            if (removeTitles.includes(item.Title)) {
+                entriesToRemove.push(item); // Add to entriesToRemove if title matches
+                return false; // Exclude this item from the result
+            }
+            return true; // Include this item in the result
+        });
     
-        combined.forEach(item => {
+        console.log("Entries removed due to title match:", entriesToRemove);
+    
+    
+        filteredCombined.forEach(item => {
             if (!item["Contact Full Name"]) {
                 uniqueData.push(item); // Consider it unique and skip further checks
                 return; // Exit this iteration
@@ -106,9 +115,6 @@ const CompareData = ({stateData, sheetData, state}) => {
     };
     
     
-
-
-
     const onDragEnd = (result) => {
         if (!result.destination) return;
         const items = Array.from(headersOrder);
