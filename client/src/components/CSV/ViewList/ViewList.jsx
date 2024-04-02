@@ -5,7 +5,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import CompareData from './CompareData/CompareData';
 
 const ViewList = () => {
-  const { dataByState, dataBySheet } = useCSV();
+  const { dataByState, dataBySheet, deletedNames } = useCSV();
   const [selectedState, setSelectedState] = useState('');
   const [selectedHeaders, setSelectedHeaders] = useState([]);
   const [headersOrder, setHeadersOrder] = useState([]);
@@ -123,7 +123,7 @@ const ViewList = () => {
   
       {activeView === 'compareData' && (
         <div>
-          <CompareData stateData={sortedData} sheetData={dataBySheet} state={selectedState}/>
+          <CompareData stateData={sortedData} sheetData={dataBySheet} state={selectedState} deletedNames={deletedNames}/>
         </div>
       )}
     </div>

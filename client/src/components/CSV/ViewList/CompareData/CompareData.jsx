@@ -2,59 +2,101 @@ import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import './styles.css';
 
-const CompareData = ({stateData, sheetData, state}) => {
+const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     const [data, setData] = useState([]);
+    const person = [];
     const [combinedData, setCombinedData] = useState([]);
     console.log('excel data', data);
     console.log('combined data', combinedData);
+    console.log('deleted names', deletedNames);
     const [selectedHeaders, setSelectedHeaders] = useState({});
     const [headersOrder, setHeadersOrder] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const removeTitles = [
         '',
     ]; //FILL WITH TITLES THAT NEED TO BE REMOVED
-
+    const [delName, setDelName] = useState([]);
+    console.log('delName', delName);
 
     useEffect(() => {
-        // Iterate over sheetData as an object
-        Object.entries(sheetData).forEach(([sheetName, data]) => {
-            if(sheetName === state){
-                setData(data);
-            }
-        });
-
-        if (stateData && sheetData[state]) {
-            const dataToCompare = sheetData[state];
-            const combined = combineAndFilterData(stateData, dataToCompare);
-            setCombinedData(combined);
-            if (combined.length > 0) {
-                const allHeaders = Object.keys(combined[0]);
-                // console.log(allHeaders);
+        // Directly access sheetData for the current state if it exists
+        const sheetDataForState = sheetData[state];
+        
+        if (sheetDataForState) {
+            // Set the data for the current state
+            setData(sheetDataForState);
+    
+            // Proceed to combine and filter data as needed
+            const initialCombined = combineAndFilterData(stateData, sheetDataForState, []);
+            setCombinedData(initialCombined);
+            
+            // Setup headers based on the combined data
+            if (initialCombined.length > 0) {
+                const allHeaders = Object.keys(initialCombined[0]);
                 setHeadersOrder(allHeaders);
                 const headersSelection = allHeaders.reduce((acc, header) => ({ ...acc, [header]: true }), {});
                 setSelectedHeaders(headersSelection);
             }
         }
-      
-    }, [sheetData, stateData, state]);
+    }, [sheetData, stateData, state]); // Dependencies include stateData, sheetData, and state
+    
 
-    const combineAndFilterData = (dataOne, dataTwo) => {
+    useEffect(() => {
+        // Filter deleted names based on the state and re-filter combined data if necessary
+        const namesFromState = deletedNames.filter(del => del.State === state);
+        setDelName(namesFromState);
+    
+        if (namesFromState.length > 0 && stateData && sheetData[state]) {
+            // Only re-filter if we have deleted names for the current state
+            const reFilteredCombined = combineAndFilterData(stateData, sheetData[state], namesFromState);
+            setCombinedData(reFilteredCombined);
+        }
+    }, [deletedNames, state, stateData, sheetData]);
+
+    const combineAndFilterData = (dataOne, dataTwo, delName) => {
         const combined = [...dataOne, ...dataTwo];
         const uniqueData = [];
         const duplicates = []; // To store duplicates for logging
-        const entriesToRemove = [];
+        const entriesToRemoveDeleted = [];
+        console.log('e', person);
+        const entriesToRemoveTitle = [];
+        const entriesToRemove = entriesToRemoveDeleted + entriesToRemoveTitle;
+        console.log("R", entriesToRemove);
 
-        const filteredCombined = combined.filter(item => {
-            if (removeTitles.includes(item.Title)) {
-                entriesToRemove.push(item); // Add to entriesToRemove if title matches
+       // Filter out entries based on titles
+        const filteredByTitles = combined.filter(item => {
+            if (item.Title && removeTitles.includes(item.Title)) {
+                entriesToRemoveTitle.push(item); // Add to entriesToRemove if title matches
                 return false; // Exclude this item from the result
             }
             return true; // Include this item in the result
         });
-    
-        console.log("Entries removed due to title match:", entriesToRemove);
-    
-    
+
+        console.log("Entries removed due to title match:", entriesToRemoveTitle);
+
+        // Further filter out entries based on deleted names
+        const filteredCombined = filteredByTitles.filter(item => {
+            if (!item["Contact Full Name"]) return true; // Skip if no name provided
+
+            const itemNameParts = item["Contact Full Name"].split(' ').filter(Boolean);
+            const firstName = itemNameParts[0].toLowerCase();
+            const lastName = itemNameParts[itemNameParts.length - 1].toLowerCase();
+
+            const isDeletedName = delName?.some(delN => 
+                delN.FirstName.toLowerCase() === firstName && 
+                delN.LastName.toLowerCase() === lastName
+            );
+
+            if (isDeletedName) {
+                console.log('?', isDeletedName);
+                entriesToRemoveDeleted.push(item); // Optionally log removed entries
+                return false; // Exclude this item
+            }
+            return true;
+        });
+
+        console.log("Entries removed due to matching deleted names:", entriesToRemoveDeleted);
+
         filteredCombined.forEach(item => {
             if (!item["Contact Full Name"]) {
                 uniqueData.push(item); // Consider it unique and skip further checks
@@ -74,7 +116,7 @@ const CompareData = ({stateData, sheetData, state}) => {
                 const uniqueNameParts = uniqueItem["Contact Full Name"].split(' ').filter(Boolean);
                 const uniqueLastName = uniqueNameParts[uniqueNameParts.length - 1].toLowerCase();
                 const uniqueFirstName = uniqueNameParts[0].toLowerCase();
-    
+
                 // Check last names and first names match
                 if (lastName === uniqueLastName && firstName === uniqueFirstName) {
                     // Check if addresses match
@@ -82,10 +124,21 @@ const CompareData = ({stateData, sheetData, state}) => {
                         // Now, handle email logic according to new rules
                         if (uniqueItem["Email 1"] && !item["Email 1"]) {
                             // The existing item has an email, and the new item does not; consider it a duplicate, but do nothing (prefer the one with the email).
+                            const personExists = person.some(ppl => 
+                                ppl.updated["Contact Full Name"] === uniqueItem["Contact Full Name"] && 
+                                ppl.updated["Email 1"] === uniqueItem["Email 1"]
+                            );
+        
+                            if (!personExists) {
+                                person.push({
+                                    updated: uniqueItem // Push the uniqueItem since it contains the email
+                                });
+                            }
                             foundDuplicate = true;
                             break;
                         } else if (!uniqueItem["Email 1"] && item["Email 1"]) {
                             // The new item has an email, and the existing item does not; replace the existing item with the new one.
+                           
                             uniqueData[i] = item; // Replace with the item that has an email.
                             foundDuplicate = true;
                             break;
