@@ -173,7 +173,6 @@ const CompareData = ({stateData, sheetData, state}) => {
 
     return (
         <>
-            <button onClick={() => setIsModalOpen(true)}>Edit Headers</button>
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
                 <DragDropContext onDragEnd={onDragEnd}>
@@ -198,7 +197,10 @@ const CompareData = ({stateData, sheetData, state}) => {
 
         <div className="compare-toolbar">
             <p style={{color:'white'}}>Combined Data Length: {combinedData.length}</p>
-            <button onClick={exportToCSV}>Export</button>
+            <div className="compare-toolbar-buttons">
+                <button onClick={() => setIsModalOpen(true)}>Edit Headers</button>
+                <button onClick={exportToCSV}>Export</button>
+            </div>
         </div>
         <div className="CompareData-table-container">
             <table className="CompareData-table">

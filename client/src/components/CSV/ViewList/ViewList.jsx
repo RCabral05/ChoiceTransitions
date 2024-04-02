@@ -70,8 +70,9 @@ const ViewList = () => {
       {activeView === 'viewList' && (
         <>
             <div className="viewList-section">
-                <button onClick={() => setIsModalOpen(true)}>Edit Headers</button>
                 <p className="View-list-record-count">Number of Records (Seamless): {sortedData.length}</p>
+                <button onClick={() => setIsModalOpen(true)}>Edit Headers</button>
+            
             </div>
           
 
@@ -95,26 +96,28 @@ const ViewList = () => {
                 </Droppable>
                 </DragDropContext>
             </Modal>
-          <div className="View-list-container">
-            <table className="view-list-table">
-                <thead>
+            <div className="CompareData-table-container"> 
+                <table className="CompareData-table"> 
+                    <thead className="CompareData-thead">
                     <tr>
-                    {headersOrder.filter(header => selectedHeaders[header]).map((header, index) => (
-                        <th key={index}>{header}</th>
-                    ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {sortedData.map((row, rowIndex) => (
-                    <tr key={rowIndex}>
                         {headersOrder.filter(header => selectedHeaders[header]).map((header, index) => (
-                        <td key={index}>{row[header]}</td>
+                        <th key={index} className="CompareData-th">{header}</th> 
                         ))}
                     </tr>
+                    </thead>
+                    <tbody>
+                    {sortedData.map((row, rowIndex) => (
+                        <tr key={rowIndex} className="CompareData-tr"> 
+                        {headersOrder.filter(header => selectedHeaders[header]).map((header, index) => (
+                            <td key={index} className="CompareData-td">{row[header]}</td>
+                        ))}
+                        </tr>
                     ))}
-                </tbody>
-            </table>
-          </div>
+                    </tbody>
+                </table>
+            </div>
+
+
         </>
       )}
   

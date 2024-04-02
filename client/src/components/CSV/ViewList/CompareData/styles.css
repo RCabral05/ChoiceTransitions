@@ -35,13 +35,28 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 20px;
+    /* border: 1px solid red; */
+    align-items: center;
+  }
+  .compare-toolbar-buttons button{
+    margin-left: 20px;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+  }
+  .compare-toolbar-buttons button:hover{
+    cursor: pointer;
   }
 
   .CompareData-table-container {
     width: 100%;
+    height: 78vh;
     overflow: auto;
     border-radius: 10px;
 
+  }
+  .CompareData-table-container::-webkit-scrollbar {
+    display: none;
   }
   .CompareData-table {
     width: 100%;
