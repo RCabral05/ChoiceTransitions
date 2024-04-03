@@ -6,9 +6,6 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     const [data, setData] = useState([]);
     const [person, setPerson] = useState([]);
     const [combinedData, setCombinedData] = useState([]);
-    console.log('excel data', data);
-    console.log('combined data', combinedData);
-    console.log('deleted names', deletedNames);
     const [selectedHeaders, setSelectedHeaders] = useState({});
     const [headersOrder, setHeadersOrder] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,8 +13,12 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
         '',
     ]; //FILL WITH TITLES THAT NEED TO BE REMOVED
     const [delName, setDelName] = useState([]);
-    console.log('delName', delName);
     const [selectedOption, setSelectedOption] = useState('');
+
+    console.log('delName', delName);
+    console.log('excel data', data);
+    console.log('combined data', combinedData);
+    console.log('deleted names', deletedNames);
 
     useEffect(() => {
         // Directly access sheetData for the current state if it exists
@@ -254,8 +255,6 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     const getFilteredOrSortedData = () => {
         if (!selectedOption) return combinedData;
 
-        // Example of filtering based on the selected option
-        // Adjust the logic here based on your requirements
         if (selectedOption === "Emails") {
             return combinedData
                 .filter(item => item["Email 1"]) // Filter items that have an email
@@ -300,125 +299,115 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                     "Company Street 2": item["Company Street 2"]
                 }));
         }
-        
-        
-        
-        
     };
 
     const displayData = getFilteredOrSortedData();
     
 
-
     return (
         <>
-
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
                 <DragDropContext onDragEnd={onDragEnd}>
-                <Droppable droppableId="headers">
-                    {(provided) => (
-                    <div {...provided.droppableProps} ref={provided.innerRef} className="View-list-headers-container">
-                        {headersOrder.map((header, index) => (
-                        <Draggable key={header} draggableId={header} index={index}>
-                            {(provided) => (
-                            <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={selectedHeaders[header] ? "header-selected" : "header-unselected"} onClick={() => toggleHeaderSelected(header)}>
-                                {header}
+                    <Droppable droppableId="headers">
+                        {(provided) => (
+                            <div {...provided.droppableProps} ref={provided.innerRef} className="View-list-headers-container">
+                                {headersOrder.map((header, index) => (
+                                    <Draggable key={header} draggableId={header} index={index}>
+                                        {(provided) => (
+                                            <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={selectedHeaders[header] ? "header-selected" : "header-unselected"} onClick={() => toggleHeaderSelected(header)}>
+                                                {header}
+                                            </div>
+                                        )}
+                                    </Draggable>
+                                ))}
+                                {provided.placeholder}
                             </div>
-                            )}
-                        </Draggable>
-                        ))}
-                        {provided.placeholder}
-                    </div>
-                    )}
-                </Droppable>
+                        )}
+                    </Droppable>
                 </DragDropContext>
             </Modal>
-
-        <div className="compare-toolbar">
-            <p style={{color:'white'}}>Combined Data Length: {displayData.length}</p>
-            <div className="compare-toolbar-buttons">
-                <select onChange={handleSelectChange} value={selectedOption}>
-                        <option value="">Full {state} List</option>
-                        {/* Replace these options with your actual options */}
-                        <option value="Emails">Emails</option>
-                        <option value="CompanyStreet">Address</option>
-                        <option value="CompanyStreetUpdated">Address - Updated Contacts Removed</option>
-                </select>
-                <button onClick={() => setIsModalOpen(true)}>Edit Headers</button>
-                <button onClick={exportToCSV}>Export</button>
+            <div className="compare-toolbar">
+                <p style={{color:'white'}}>Combined Data Length: {displayData.length}</p>
+                <div className="compare-toolbar-buttons">
+                    <select onChange={handleSelectChange} value={selectedOption}>
+                            <option value="">Full {state} List</option>
+                            {/* Replace these options with your actual options */}
+                            <option value="Emails">Emails</option>
+                            <option value="CompanyStreet">Address</option>
+                            <option value="CompanyStreetUpdated">Address - Updated Contacts Removed</option>
+                    </select>
+                    <button onClick={() => setIsModalOpen(true)}>Edit Headers</button>
+                    <button onClick={exportToCSV}>Export</button>
+                </div>
             </div>
-        </div>
-        <div className="CompareData-table-container">
-            <table className="CompareData-table">
-            <thead className="CompareData-thead">
-                <tr>
-                    {selectedOption === "Emails" ? (
-                        <>
-                            <th className="CompareData-th">Contact Full Name</th>
-                            <th className="CompareData-th">Email 1</th>
-                            <th className="CompareData-th">Personal Email</th>
-                        </>
-                    ) : selectedOption === "CompanyStreet" ? ( /* New condition */
-                        <>
-                            <th className="CompareData-th">Contact Full Name</th>
-                            <th className="CompareData-th">Company Street 1</th>
-                            <th className="CompareData-th">Company Street 2</th>
-                        </>
-                        
-                    ) : selectedOption === "CompanyStreetUpdated" ? (
-                        <>
-                            <th className="CompareData-th">Contact Full Name</th>
-                            <th className="CompareData-th">Company Street 1</th>
-                            <th className="CompareData-th">Company Street 2</th>
-                        </>
-                    ) : (
-                        headersOrder.filter(header => selectedHeaders[header]).map(header => (
-                            <th key={header} className="CompareData-th">{header}</th>
-                        ))
-                    )}
-                </tr>
-            </thead>
-            <tbody>
-                {displayData
-                    .sort((a, b) => {
-                        const nameA = a["Contact Full Name"] ? a["Contact Full Name"].toUpperCase() : '';
-                        const nameB = b["Contact Full Name"] ? b["Contact Full Name"].toUpperCase() : '';
-                        return nameA.localeCompare(nameB);
-                    })
-                    .map((item, index) => (
-                        <tr key={index} className="CompareData-tr">
+            <div className="CompareData-table-container">
+                <table className="CompareData-table">
+                    <thead className="CompareData-thead">
+                        <tr>
                             {selectedOption === "Emails" ? (
                                 <>
-                                    <td className="CompareData-td">{item["Contact Full Name"]}</td>
-                                    <td className="CompareData-td">{item["Email 1"]}</td>
-                                    <td className="CompareData-td">{item["Personal Email"]}</td>
+                                    <th className="CompareData-th">Contact Full Name</th>
+                                    <th className="CompareData-th">Email 1</th>
+                                    <th className="CompareData-th">Personal Email</th>
                                 </>
                             ) : selectedOption === "CompanyStreet" ? ( /* New condition */
                                 <>
-                                    <td className="CompareData-td">{item["Contact Full Name"]}</td>
-                                    <td className="CompareData-td">{item["Company Street 1"]}</td>
-                                    <td className="CompareData-td">{item["Company Street 2"]}</td>
+                                    <th className="CompareData-th">Contact Full Name</th>
+                                    <th className="CompareData-th">Company Street 1</th>
+                                    <th className="CompareData-th">Company Street 2</th>
                                 </>
+                                
                             ) : selectedOption === "CompanyStreetUpdated" ? (
                                 <>
-                                    <td className="CompareData-td">{item["Contact Full Name"]}</td>
-                                    <td className="CompareData-td">{item["Company Street 1"]}</td>
-                                    <td className="CompareData-td">{item["Company Street 2"]}</td>
+                                    <th className="CompareData-th">Contact Full Name</th>
+                                    <th className="CompareData-th">Company Street 1</th>
+                                    <th className="CompareData-th">Company Street 2</th>
                                 </>
                             ) : (
                                 headersOrder.filter(header => selectedHeaders[header]).map(header => (
-                                    <td key={header} className="CompareData-td">{item[header] || 'N/A'}</td>
+                                    <th key={header} className="CompareData-th">{header}</th>
                                 ))
                             )}
                         </tr>
-                    ))}
-            </tbody>
-
-
-            </table>
-        </div>
-
-    </>
+                    </thead>
+                    <tbody>
+                        {displayData
+                            .sort((a, b) => {
+                                const nameA = a["Contact Full Name"] ? a["Contact Full Name"].toUpperCase() : '';
+                                const nameB = b["Contact Full Name"] ? b["Contact Full Name"].toUpperCase() : '';
+                                return nameA.localeCompare(nameB);
+                            })
+                            .map((item, index) => (
+                                <tr key={index} className="CompareData-tr">
+                                    {selectedOption === "Emails" ? (
+                                        <>
+                                            <td className="CompareData-td">{item["Contact Full Name"]}</td>
+                                            <td className="CompareData-td">{item["Email 1"]}</td>
+                                            <td className="CompareData-td">{item["Personal Email"]}</td>
+                                        </>
+                                    ) : selectedOption === "CompanyStreet" ? ( /* New condition */
+                                        <>
+                                            <td className="CompareData-td">{item["Contact Full Name"]}</td>
+                                            <td className="CompareData-td">{item["Company Street 1"]}</td>
+                                            <td className="CompareData-td">{item["Company Street 2"]}</td>
+                                        </>
+                                    ) : selectedOption === "CompanyStreetUpdated" ? (
+                                        <>
+                                            <td className="CompareData-td">{item["Contact Full Name"]}</td>
+                                            <td className="CompareData-td">{item["Company Street 1"]}</td>
+                                            <td className="CompareData-td">{item["Company Street 2"]}</td>
+                                        </>
+                                    ) : (
+                                        headersOrder.filter(header => selectedHeaders[header]).map(header => (
+                                            <td key={header} className="CompareData-td">{item[header] || 'N/A'}</td>
+                                        ))
+                                    )}
+                                </tr>
+                            ))}
+                    </tbody>
+                </table>
+            </div>
+        </>
     );
     
 };
