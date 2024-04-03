@@ -17,6 +17,7 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     ]; //FILL WITH TITLES THAT NEED TO BE REMOVED
     const [delName, setDelName] = useState([]);
     console.log('delName', delName);
+    const [selectedOption, setSelectedOption] = useState('');
 
     useEffect(() => {
         // Directly access sheetData for the current state if it exists
@@ -207,9 +208,6 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
         document.body.removeChild(link);
     };
     
-    
-
-    
     const Modal = ({ isOpen, children, onClose }) => {
         if (!isOpen) return null;
       
@@ -226,7 +224,39 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
             </div>
           </div>
         );
-      };
+    };
+
+
+    const handleSelectChange = (event) => {
+        setSelectedOption(event.target.value);
+    };
+
+    const getFilteredOrSortedData = () => {
+        if (!selectedOption) return combinedData;
+
+        // Example of filtering based on the selected option
+        // Adjust the logic here based on your requirements
+        if (selectedOption === "Emails") {
+            return combinedData
+                .filter(item => item["Email 1"]) // Filter items that have an email
+                .map(item => ({
+                    "Contact Full Name": item["Contact Full Name"],
+                    "Email 1": item["Email 1"],
+                    "Personal Email": item["Personal Email"],
+                })); // Return only Contact Full Name and Email 1 / personal email
+        }
+        if (selectedOption === "CompanyStreet"){
+            return combinedData
+                .filter(item => item["Company Street 1"]) // Filter items that have an address
+                .map(item => ({
+                    "Contact Full Name": item["Contact Full Name"],
+                    "Company Street 1": item["Company Street 1"],
+                    "Company Street 2": item["Company Street 2"]
+                })); // Return only Contact Full Name and Address 1 / 2
+        }
+    };
+
+    const displayData = getFilteredOrSortedData();
     
 
 
@@ -255,36 +285,72 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
             </Modal>
 
         <div className="compare-toolbar">
-            <p style={{color:'white'}}>Combined Data Length: {combinedData.length}</p>
+            <p style={{color:'white'}}>Combined Data Length: {displayData.length}</p>
             <div className="compare-toolbar-buttons">
+                <select onChange={handleSelectChange} value={selectedOption}>
+                        <option value="">Full {state} List</option>
+                        {/* Replace these options with your actual options */}
+                        <option value="Emails">Emails</option>
+                        <option value="CompanyStreet">Address</option>
+                </select>
                 <button onClick={() => setIsModalOpen(true)}>Edit Headers</button>
                 <button onClick={exportToCSV}>Export</button>
             </div>
         </div>
         <div className="CompareData-table-container">
             <table className="CompareData-table">
-                <thead className="CompareData-thead">
+            <thead className="CompareData-thead">
                 <tr>
-                    {headersOrder.filter(header => selectedHeaders[header]).map(header => (
-                    <th key={header} className="CompareData-th">{header}</th>
-                    ))}
+                    {selectedOption === "Emails" ? (
+                        <>
+                            <th className="CompareData-th">Contact Full Name</th>
+                            <th className="CompareData-th">Email 1</th>
+                            <th className="CompareData-th">Personal Email</th>
+                        </>
+                    ) : selectedOption === "CompanyStreet" ? ( /* New condition */
+                        <>
+                            <th className="CompareData-th">Contact Full Name</th>
+                            <th className="CompareData-th">Company Street 1</th>
+                            <th className="CompareData-th">Company Street 2</th>
+                        </>
+                    ) : (
+                        headersOrder.filter(header => selectedHeaders[header]).map(header => (
+                            <th key={header} className="CompareData-th">{header}</th>
+                        ))
+                    )}
                 </tr>
-                </thead>
-                <tbody>
-                {combinedData
+            </thead>
+            <tbody>
+                {displayData
                     .sort((a, b) => {
-                    const nameA = a["Contact Full Name"].toUpperCase(); // ignore upper and lowercase
-                    const nameB = b["Contact Full Name"].toUpperCase(); // ignore upper and lowercase
-                    return nameA.localeCompare(nameB); // Utilizing localeCompare for sorting
+                        const nameA = a["Contact Full Name"] ? a["Contact Full Name"].toUpperCase() : '';
+                        const nameB = b["Contact Full Name"] ? b["Contact Full Name"].toUpperCase() : '';
+                        return nameA.localeCompare(nameB);
                     })
                     .map((item, index) => (
-                    <tr key={index} className="CompareData-tr">
-                        {headersOrder.filter(header => selectedHeaders[header]).map(header => (
-                        <td key={header} className="CompareData-td">{item[header] || 'N/A'}</td>
-                        ))}
-                    </tr>
+                        <tr key={index} className="CompareData-tr">
+                            {selectedOption === "Emails" ? (
+                                <>
+                                    <td className="CompareData-td">{item["Contact Full Name"]}</td>
+                                    <td className="CompareData-td">{item["Email 1"]}</td>
+                                    <td className="CompareData-td">{item["Personal Email"]}</td>
+                                </>
+                            ) : selectedOption === "CompanyStreet" ? ( /* New condition */
+                                <>
+                                    <td className="CompareData-td">{item["Contact Full Name"]}</td>
+                                    <td className="CompareData-td">{item["Company Street 1"]}</td>
+                                    <td className="CompareData-td">{item["Company Street 2"]}</td>
+                                </>
+                            ) : (
+                                headersOrder.filter(header => selectedHeaders[header]).map(header => (
+                                    <td key={header} className="CompareData-td">{item[header] || 'N/A'}</td>
+                                ))
+                            )}
+                        </tr>
                     ))}
-                </tbody>
+            </tbody>
+
+
             </table>
         </div>
 
