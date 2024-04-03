@@ -186,27 +186,47 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
 
 
     const exportToCSV = () => {
-        // Ask the user for the file name
         const fileName = prompt("Please enter a name for your CSV file:", "export.csv");
-        // If the user pressed cancel, then don't proceed
-        if (fileName === null) return;
+        if (fileName === null) return; // If the user pressed cancel, then don't proceed
     
-        const selectedHeaderKeys = headersOrder.filter(header => selectedHeaders[header]);
-        const csvRows = [
-            selectedHeaderKeys.join(','), // CSV header row
-            ...combinedData.map(row =>
-                selectedHeaderKeys.map(fieldName => JSON.stringify(row[fieldName] || '')).join(',')
-            )
-        ];
-        const csvString = csvRows.join('\n');
+        let csvHeaders = [];
+        let csvRows = [];
+    
+        // Define headers and row data based on the selectedOption
+        if (selectedOption === "Emails") {
+            csvHeaders = ["Contact Full Name", "Email 1", "Personal Email"];
+            csvRows = displayData.map(row => 
+                csvHeaders.map(fieldName => JSON.stringify(row[fieldName] || '')).join(',')
+            );
+        } else if (selectedOption === "CompanyStreet" || selectedOption === "CompanyStreetUpdated") {
+            csvHeaders = ["Contact Full Name", "Company Street 1", "Company Street 2"];
+            csvRows = displayData.map(row => 
+                csvHeaders.map(fieldName => JSON.stringify(row[fieldName] || '')).join(',')
+            );
+        } else {
+            // Default to all selected headers if no specific option is selected
+            csvHeaders = headersOrder.filter(header => selectedHeaders[header]);
+            csvRows = combinedData.map(row =>
+                csvHeaders.map(fieldName => JSON.stringify(row[fieldName] || '')).join(',')
+            );
+        }
+    
+        // Combine headers and rows for CSV
+        const csvString = [
+            csvHeaders.join(','), // CSV header row
+            ...csvRows
+        ].join('\n');
+    
+        // Create and download the CSV file
         const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.setAttribute('download', fileName); // Use the fileName from prompt
+        link.setAttribute('download', fileName);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     };
+    
     
     const Modal = ({ isOpen, children, onClose }) => {
         if (!isOpen) return null;
