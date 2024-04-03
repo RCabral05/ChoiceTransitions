@@ -16,8 +16,8 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     const [selectedOption, setSelectedOption] = useState('');
 
     console.log('delName', delName);
-    // console.log('excel data', data);
-    // console.log('combined data', combinedData);
+    console.log('excel data', data);
+    console.log('combined data', combinedData);
     console.log('deleted names', deletedNames);
 
     useEffect(() => {
@@ -278,6 +278,9 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
             return combinedData
                 .filter(item => item["Company Street 1"]) // Ensure item has an address
                 .filter(item => {
+                    if (!item["Contact Full Name"]) {
+                        return item; // This effectively skips the item
+                    }
                     // Normalize names for comparison to handle case differences
                     const itemNameNormalized = item["Contact Full Name"].toLowerCase().trim();
                     
