@@ -331,8 +331,8 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                             <option value="">Full {state} List</option>
                             {/* Replace these options with your actual options */}
                             <option value="Emails">Emails</option>
-                            <option value="CompanyStreet">Address</option>
-                            <option value="CompanyStreetUpdated">Address - Updated Contacts Removed</option>
+                            <option value="CompanyStreet">Addresses</option>
+                            <option value="CompanyStreetUpdated">Addresses - Updated Contacts Removed</option>
                     </select>
                     <button onClick={() => setIsModalOpen(true)}>Edit Headers</button>
                     <button onClick={exportToCSV}>Export</button>
