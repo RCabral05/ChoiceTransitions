@@ -4,7 +4,7 @@ import './styles.css';
 
 const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     const [data, setData] = useState([]);
-    const person = [];
+    const [person, setPerson] = useState([]);
     const [combinedData, setCombinedData] = useState([]);
     console.log('excel data', data);
     console.log('combined data', combinedData);
@@ -59,10 +59,10 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
         const uniqueData = [];
         const duplicates = []; // To store duplicates for logging
         const entriesToRemoveDeleted = [];
-        console.log('e', person);
+        console.log('Contact exists but email updated', person);
         const entriesToRemoveTitle = [];
         const entriesToRemove = entriesToRemoveDeleted + entriesToRemoveTitle;
-        console.log("R", entriesToRemove);
+        console.log("Entries to remove", entriesToRemove);
 
        // Filter out entries based on titles
         const filteredByTitles = combined.filter(item => {
@@ -254,6 +254,36 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                     "Company Street 2": item["Company Street 2"]
                 })); // Return only Contact Full Name and Address 1 / 2
         }
+        if (selectedOption === "CompanyStreetUpdated") {
+            console.log('names removed:', person); // Debug: Log the person array to verify its structure and contents
+        
+            return combinedData
+                .filter(item => item["Company Street 1"]) // Ensure item has an address
+                .filter(item => {
+                    // Normalize names for comparison to handle case differences
+                    const itemNameNormalized = item["Contact Full Name"].toLowerCase().trim();
+                    
+                    // Check if the item's full name matches any name in the `person` array
+                    const isUpdatedPerson = person.some(ppl => {
+                        const personNameNormalized = ppl.updated["Contact Full Name"].toLowerCase().trim();
+                        // console.log(`Comparing: '${personNameNormalized}' with '${itemNameNormalized}'`);
+                        return personNameNormalized === itemNameNormalized;
+                    });
+                    
+        
+                    // console.log('Is updated person:', isUpdatedPerson, 'for', item["Contact Full Name"]);
+                    return !isUpdatedPerson; // Exclude if found in `person`
+                })
+                .map(item => ({
+                    "Contact Full Name": item["Contact Full Name"],
+                    "Company Street 1": item["Company Street 1"],
+                    "Company Street 2": item["Company Street 2"]
+                }));
+        }
+        
+        
+        
+        
     };
 
     const displayData = getFilteredOrSortedData();
@@ -292,6 +322,7 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                         {/* Replace these options with your actual options */}
                         <option value="Emails">Emails</option>
                         <option value="CompanyStreet">Address</option>
+                        <option value="CompanyStreetUpdated">Address - Updated Contacts Removed</option>
                 </select>
                 <button onClick={() => setIsModalOpen(true)}>Edit Headers</button>
                 <button onClick={exportToCSV}>Export</button>
@@ -308,6 +339,13 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                             <th className="CompareData-th">Personal Email</th>
                         </>
                     ) : selectedOption === "CompanyStreet" ? ( /* New condition */
+                        <>
+                            <th className="CompareData-th">Contact Full Name</th>
+                            <th className="CompareData-th">Company Street 1</th>
+                            <th className="CompareData-th">Company Street 2</th>
+                        </>
+                        
+                    ) : selectedOption === "CompanyStreetUpdated" ? (
                         <>
                             <th className="CompareData-th">Contact Full Name</th>
                             <th className="CompareData-th">Company Street 1</th>
@@ -336,6 +374,12 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                                     <td className="CompareData-td">{item["Personal Email"]}</td>
                                 </>
                             ) : selectedOption === "CompanyStreet" ? ( /* New condition */
+                                <>
+                                    <td className="CompareData-td">{item["Contact Full Name"]}</td>
+                                    <td className="CompareData-td">{item["Company Street 1"]}</td>
+                                    <td className="CompareData-td">{item["Company Street 2"]}</td>
+                                </>
+                            ) : selectedOption === "CompanyStreetUpdated" ? (
                                 <>
                                     <td className="CompareData-td">{item["Contact Full Name"]}</td>
                                     <td className="CompareData-td">{item["Company Street 1"]}</td>
