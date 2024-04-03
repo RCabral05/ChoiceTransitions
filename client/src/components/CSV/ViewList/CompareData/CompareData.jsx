@@ -185,9 +185,8 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
         }));
     };
 
-
     const exportToCSV = () => {
-        const fileName = prompt("Please enter a name for your CSV file:", "export.csv");
+        const fileName = prompt("Please enter a name for your CSV file:", "export");
         if (fileName === null) return; // If the user pressed cancel, then don't proceed
     
         let csvHeaders = [];
