@@ -16,8 +16,8 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     const [selectedOption, setSelectedOption] = useState('');
 
     console.log('delName', delName);
-    console.log('excel data', data);
-    console.log('combined data', combinedData);
+    // console.log('excel data', data);
+    // console.log('combined data', combinedData);
     console.log('deleted names', deletedNames);
 
     useEffect(() => {
@@ -90,7 +90,7 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
             );
 
             if (isDeletedName) {
-                console.log('?', isDeletedName);
+                // console.log('?', isDeletedName);
                 entriesToRemoveDeleted.push(item); // Optionally log removed entries
                 return false; // Exclude this item
             }
@@ -301,7 +301,6 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     };
 
     const displayData = getFilteredOrSortedData();
-    
 
     return (
         <>
@@ -328,7 +327,7 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
             <div className="compare-toolbar">
                 <p style={{color:'white'}}>Combined Data Length: {displayData.length}</p>
                 <div className="compare-toolbar-buttons">
-                    <select onChange={handleSelectChange} value={selectedOption}>
+                    <select onChange={handleSelectChange} value={selectedOption} className="view-list-state-select">
                             <option value="">Full {state} List</option>
                             {/* Replace these options with your actual options */}
                             <option value="Emails">Emails</option>
