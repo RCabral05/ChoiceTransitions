@@ -9,6 +9,7 @@
     border-radius: 10px;
     border:none;
     text-align: center;
+    margin-right: 10px;
 }
 .View-toggle-buttons{
     display: flex;
@@ -39,7 +40,7 @@
     color: white;
 }
 .View-toggle-buttons button{
-    margin-left: 10px;
+    /* margin-right: 10px; */
 }
 /* Drag-and-drop headers container */
 .View-list-headers-container{

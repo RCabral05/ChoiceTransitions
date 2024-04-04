@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import ExportIcon from '@mui/icons-material/Downloading';
+import RuleIcon from '@mui/icons-material/Rule';
 import './styles.css';
 
 const CompareData = ({stateData, sheetData, state, deletedNames}) => {
@@ -9,8 +12,10 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     const [selectedHeaders, setSelectedHeaders] = useState({});
     const [headersOrder, setHeadersOrder] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [alreadyMailed, setAlreadyMailed] = useState([]);
+    const fileInputRef = useRef(null); 
     const removeTitles = [
-        '',
+        'DMD Candidate',
     ]; //FILL WITH TITLES THAT NEED TO BE REMOVED
     const [delName, setDelName] = useState([]);
     const [selectedOption, setSelectedOption] = useState('');
@@ -19,6 +24,7 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     console.log('excel data', data);
     console.log('combined data', combinedData);
     console.log('deleted names', deletedNames);
+    console.log('mailed names', alreadyMailed);
 
     useEffect(() => {
         // Directly access sheetData for the current state if it exists
@@ -194,12 +200,12 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     
         // Define headers and row data based on the selectedOption
         if (selectedOption === "Emails") {
-            csvHeaders = ["Contact Full Name", "Email 1", "Personal Email"];
+            csvHeaders = ["Contact Full Name", "Company Name", "Email 1", "Personal Email"];
             csvRows = displayData.map(row => 
                 csvHeaders.map(fieldName => JSON.stringify(row[fieldName] || '')).join(',')
             );
-        } else if (selectedOption === "CompanyStreet" || selectedOption === "CompanyStreetUpdated") {
-            csvHeaders = ["Contact Full Name", "Company Street 1", "Company Street 2"];
+        } else if (selectedOption === "CompanyStreet" || selectedOption === "CompanyStreetUpdated" || selectedOption==="CompanyStreetCSVCheck") {
+            csvHeaders = ["Contact Full Name", "Company Name", "Company Street 1", "Company Street 2"];
             csvRows = displayData.map(row => 
                 csvHeaders.map(fieldName => JSON.stringify(row[fieldName] || '')).join(',')
             );
@@ -259,6 +265,7 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                 .filter(item => item["Email 1"]) // Filter items that have an email
                 .map(item => ({
                     "Contact Full Name": item["Contact Full Name"],
+                    "Company Name": item["Company Name"],
                     "Email 1": item["Email 1"],
                     "Personal Email": item["Personal Email"],
                 })); // Return only Contact Full Name and Email 1 / personal email
@@ -268,6 +275,7 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                 .filter(item => item["Company Street 1"]) // Filter items that have an address
                 .map(item => ({
                     "Contact Full Name": item["Contact Full Name"],
+                    "Company Name": item["Company Name"],
                     "Company Street 1": item["Company Street 1"],
                     "Company Street 2": item["Company Street 2"]
                 })); // Return only Contact Full Name and Address 1 / 2
@@ -297,6 +305,38 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                 })
                 .map(item => ({
                     "Contact Full Name": item["Contact Full Name"],
+                    "Company Name": item["Company Name"],
+                    "Company Street 1": item["Company Street 1"],
+                    "Company Street 2": item["Company Street 2"]
+                }));
+        }
+        if (selectedOption === "CompanyStreetCSVCheck"){
+            if (alreadyMailed.length === 0) {
+                return []; // Return an empty array or another suitable default value
+            }
+            return combinedData
+                .filter(item => item["Company Street 1"]) // Ensure item has an address
+                .filter(item => {
+                    if (!item["Contact Full Name"]) {
+                        return item; // This effectively skips the item
+                    }
+                    // Normalize names for comparison to handle case differences
+                    const itemNameNormalized = item["Contact Full Name"].toLowerCase().trim();
+                    
+                    // Check if the item's full name matches any name in the `person` array
+                    const isUpdatedPerson = alreadyMailed.some(ppl => {
+                        const personNameNormalized = ppl["Contact Full Name"].toLowerCase().trim();
+                        // console.log(`Comparing: '${personNameNormalized}' with '${itemNameNormalized}'`);
+                        return personNameNormalized === itemNameNormalized;
+                    });
+                    
+        
+                    // console.log('Is updated person:', isUpdatedPerson, 'for', item["Contact Full Name"]);
+                    return !isUpdatedPerson; // Exclude if found in `person`
+                })
+                .map(item => ({
+                    "Contact Full Name": item["Contact Full Name"],
+                    "Company Name": item["Company Name"],
                     "Company Street 1": item["Company Street 1"],
                     "Company Street 2": item["Company Street 2"]
                 }));
@@ -304,6 +344,44 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     };
 
     const displayData = getFilteredOrSortedData();
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const text = event.target.result;
+                parseCsv(text); // Function to parse CSV text
+            };
+            reader.readAsText(file);
+        }
+    };
+
+    const handleUploadClick = () => {
+        fileInputRef.current.click();
+    };
+
+    
+    const parseCsv = (text) => {
+        // Simple CSV parsing
+        const lines = text.split('\n');
+        const result = [];
+        const headers = lines[0].split(',');
+    
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i]) continue;
+            const obj = {};
+            const currentline = lines[i].split(',');
+    
+            for (let j = 0; j < headers.length; j++) {
+                obj[headers[j]] = currentline[j];
+            }
+    
+            result.push(obj);
+        }
+    
+        setAlreadyMailed(result); // Update state with parsed data
+    };
 
     return (
         <>
@@ -336,9 +414,34 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                             <option value="Emails">Emails</option>
                             <option value="CompanyStreet">Addresses</option>
                             <option value="CompanyStreetUpdated">Addresses - Updated Contacts Removed</option>
+                            <option value="CompanyStreetCSVCheck">Addresses - Already Emailed</option>
                     </select>
-                    <button onClick={() => setIsModalOpen(true)}>Edit Headers</button>
-                    <button onClick={exportToCSV}>Export</button>
+                    {selectedOption === "" && (
+                        <>
+                            <button onClick={() => setIsModalOpen(true)}><RuleIcon/></button>
+                        </>
+                    )}
+                    <button onClick={exportToCSV}><ExportIcon/></button>
+                    {selectedOption === "CompanyStreetCSVCheck" && (
+                        <>
+                            <input
+                                type="file"
+                                id="csvFileInput"
+                                accept=".csv"
+                                onChange={handleFileChange}
+                                ref={fileInputRef}
+                                style={{ display: 'none' }} // Hide the file input
+                            />
+                            <button
+                                onClick={handleUploadClick}
+                                className="view-list-state-select"
+                                startIcon={<UploadFileIcon />}
+                                component="span"
+                            >
+                                <UploadFileIcon style={{padding:'0', margin:'0'}}/>
+                            </button>
+                        </>
+                    )}
                 </div>
             </div>
             <div className="CompareData-table-container">
@@ -348,12 +451,14 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                             {selectedOption === "Emails" ? (
                                 <>
                                     <th className="CompareData-th">Contact Full Name</th>
+                                    <th className="CompareData-th">Company Name</th>
                                     <th className="CompareData-th">Email 1</th>
                                     <th className="CompareData-th">Personal Email</th>
                                 </>
                             ) : selectedOption === "CompanyStreet" ? ( /* New condition */
                                 <>
                                     <th className="CompareData-th">Contact Full Name</th>
+                                    <th className="CompareData-th">Company Name</th>
                                     <th className="CompareData-th">Company Street 1</th>
                                     <th className="CompareData-th">Company Street 2</th>
                                 </>
@@ -361,10 +466,18 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                             ) : selectedOption === "CompanyStreetUpdated" ? (
                                 <>
                                     <th className="CompareData-th">Contact Full Name</th>
+                                    <th className="CompareData-th">Company Name</th>
                                     <th className="CompareData-th">Company Street 1</th>
                                     <th className="CompareData-th">Company Street 2</th>
                                 </>
-                            ) : (
+                            ) : selectedOption === "CompanyStreetCSVCheck" ? (
+                                <>
+                                    <th className="CompareData-th">Contact Full Name</th>
+                                    <th className="CompareData-th">Company Name</th>
+                                    <th className="CompareData-th">Company Street 1</th>
+                                    <th className="CompareData-th">Company Street 2</th>
+                                </>
+                            ) :(
                                 headersOrder.filter(header => selectedHeaders[header]).map(header => (
                                     <th key={header} className="CompareData-th">{header}</th>
                                 ))
@@ -372,7 +485,11 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {displayData
+                        {displayData.length === 0 ? (
+                            <tr>
+                                <td className="CompareData-td" colSpan="3">Upload Emailed CSV</td>
+                            </tr>
+                        ) : displayData
                             .sort((a, b) => {
                                 const nameA = a["Contact Full Name"] ? a["Contact Full Name"].toUpperCase() : '';
                                 const nameB = b["Contact Full Name"] ? b["Contact Full Name"].toUpperCase() : '';
@@ -383,18 +500,29 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                                     {selectedOption === "Emails" ? (
                                         <>
                                             <td className="CompareData-td">{item["Contact Full Name"]}</td>
+                                            <td className="CompareData-td">{item["Company Name"]}</td>
                                             <td className="CompareData-td">{item["Email 1"]}</td>
                                             <td className="CompareData-td">{item["Personal Email"]}</td>
                                         </>
                                     ) : selectedOption === "CompanyStreet" ? ( /* New condition */
                                         <>
                                             <td className="CompareData-td">{item["Contact Full Name"]}</td>
+                                            <td className="CompareData-td">{item["Company Name"]}</td>
                                             <td className="CompareData-td">{item["Company Street 1"]}</td>
                                             <td className="CompareData-td">{item["Company Street 2"]}</td>
                                         </>
                                     ) : selectedOption === "CompanyStreetUpdated" ? (
                                         <>
                                             <td className="CompareData-td">{item["Contact Full Name"]}</td>
+                                            <td className="CompareData-td">{item["Company Name"]}</td>
+                                            <td className="CompareData-td">{item["Company Street 1"]}</td>
+                                            <td className="CompareData-td">{item["Company Street 2"]}</td>
+                                        </>
+                                    ) : selectedOption === "CompanyStreetCSVCheck" ? (
+                                        <>
+                                            
+                                            <td className="CompareData-td">{item["Contact Full Name"]}</td>
+                                            <td className="CompareData-td">{item["Company Name"]}</td>
                                             <td className="CompareData-td">{item["Company Street 1"]}</td>
                                             <td className="CompareData-td">{item["Company Street 2"]}</td>
                                         </>

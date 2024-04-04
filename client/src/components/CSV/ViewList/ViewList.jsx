@@ -56,12 +56,12 @@ const ViewList = () => {
     <div className='viewList-con'>
       <div className="View-toggle-buttons">
         <div className="View-list-select-container">
-            <select onChange={handleStateChange} value={selectedState} className="view-list-state-select">
+            {activeView === 'viewList' && <select onChange={handleStateChange} value={selectedState} className="view-list-state-select">
               <option value="">Select a State</option>
               {states.map(state => (
                 <option key={state} value={state}>{state}</option>
               ))}
-            </select>
+            </select>}
         </div>
         {activeView === 'compareData' && <button onClick={() => setActiveView('viewList')}>View List</button>}
         {activeView === 'viewList' && <button onClick={() => setActiveView('compareData')}>Compare Data</button>}
