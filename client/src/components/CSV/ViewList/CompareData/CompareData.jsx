@@ -23,7 +23,7 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     const [delName, setDelName] = useState([]);
     const [selectedOption, setSelectedOption] = useState('');
 
-    console.log('delName', delName);
+    // console.log('delName', delName);
     console.log('excel data', data);
     console.log('combined data', combinedData);
     console.log('deleted names', deletedNames);
