@@ -9,25 +9,25 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     const [data, setData] = useState([]);
     const [person, setPerson] = useState([]);
     const [addressMismatchLog] = useState([]);
-    console.log('address mismatch', addressMismatchLog)
-
     const [combinedData, setCombinedData] = useState([]);
     const [selectedHeaders, setSelectedHeaders] = useState({});
     const [headersOrder, setHeadersOrder] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [alreadyMailed, setAlreadyMailed] = useState([]);
+    const [delName, setDelName] = useState([]);
+    const [selectedOption, setSelectedOption] = useState('');
     const fileInputRef = useRef(null); 
     const removeTitles = [
         'DMD Candidate',
-    ]; //FILL WITH TITLES THAT NEED TO BE REMOVED
-    const [delName, setDelName] = useState([]);
-    const [selectedOption, setSelectedOption] = useState('');
+    ];
 
     // console.log('delName', delName);
     console.log('excel data', data);
     console.log('combined data', combinedData);
-    console.log('deleted names', deletedNames);
-    console.log('mailed names', alreadyMailed);
+    console.log('deleted names from excel', deletedNames);
+    console.log('address already mailed', alreadyMailed);
+    console.log('address mismatch (rd = road)', addressMismatchLog);
+    console.log('contact existed but email updated', person);
 
     useEffect(() => {
         // Directly access sheetData for the current state if it exists
@@ -73,8 +73,16 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                    .replace(/\b(dr|drive)\b/gi, 'drive')
                    .replace(/\b(blvd|boulevard)\b/gi, 'boulevard')
                    .replace(/\b(ln|lane)\b/gi, 'lane')
-                   .replace(/\b(ct|court)\b/gi, 'court');
+                   .replace(/\b(ct|court)\b/gi, 'court')
+                   .replace(/\b(sq|square)\b/gi, 'square')
+                   .replace(/\b(xing|crossing)\b/gi, 'crossing')
+                   .replace(/\b(pl|place)\b/gi, 'place')
+                   .replace(/\b(hwy|highway)\b/gi, 'highway')
+                   .replace(/\b(ste|suite)\b/gi, 'suite')
+                   .replace(/\b(pt|point)\b/gi, 'point')
+                   .replace(/\b(cir|circle)\b/gi, 'circle');
     };
+    
     
     
 
@@ -183,7 +191,6 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                         break;
                     } else if (!uniqueItem["Email 1"] && item["Email 1"]) {
                         // The new item has an email, and the existing item does not; replace the existing item with the new one.
-                        
                         uniqueData[i] = item; // Replace with the item that has an email.
                         foundDuplicate = true;
                         break;
@@ -386,6 +393,46 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                     "Company Street 2": item["Company Street 2"]
                 }));
         }
+        if (selectedOption === "excelData") {
+            if (data.length === 0) {
+                return []; // Return an empty array or another suitable default value
+            }
+            return data
+                .filter(item => item["Company Street 1"] && item["Contact Full Name"]) // Ensure item has an address and a contact name
+                .map(item => ({
+                    ...item // Spread operator to return all fields of the item
+                }));
+        }
+        if (selectedOption === "deletedNamesFromExcel") {
+            if (deletedNames.length === 0) {
+                return []; // Return an empty array as a default value if there are no entries
+            }
+            return deletedNames
+                .filter(item => item["FirstName"] && item["LastName"]) // Ensure each item has a first and last name
+                .map(item => ({
+                    ...item // Use the spread operator to return all fields of the item
+                }));
+        }
+        if (selectedOption === "AddressMisMatch") {
+            if (addressMismatchLog.length === 0) {
+                return []; // Return an empty array as a default value if there are no entries
+            }
+            return addressMismatchLog
+                .filter(item => item["normalizedItemAddress"] && item["normalizedUniqueAddress"]) // Ensure item has an address and a contact name
+                .map(item => ({
+                    ...item // Spread operator to return all fields of the item
+                }));
+        }
+        if (selectedOption === "ContactExistsButEmailUpdated") {
+            if (person.length === 0) {
+                return []; // Return an empty array as a default value if there are no entries
+            }
+            return person
+                .filter(item => item.updated && item.updated["Company Street 1"] && item.updated["Contact Full Name"]) // Ensure item has an address and a contact name
+                .map(item => ({
+                    ...item.updated // Spread operator to return all fields from the 'updated' object
+                }));
+        } 
     };
 
     const displayData = getFilteredOrSortedData();
@@ -458,8 +505,12 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                             {/* Replace these options with your actual options */}
                             <option value="Emails">Emails</option>
                             <option value="CompanyStreet">Addresses</option>
-                            <option value="CompanyStreetUpdated">Addresses - Updated Contacts Removed</option>
+                            <option value="CompanyStreetUpdated">Addresses - Updated New Email Contacts Removed</option>
                             <option value="CompanyStreetCSVCheck">Addresses - Already Emailed</option>
+                            <option value="excelData">Excel Data</option>
+                            <option value="deletedNamesFromExcel">Deleted Names From Excel</option>
+                            <option value="AddressMisMatch">Address MisMatch (rd = road)</option>
+                            <option value="ContactExistsButEmailUpdated">Contact Exists Email Updated</option>
                     </select>
                     {selectedOption === "" && (
                         <>
@@ -522,7 +573,51 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                                     <th className="CompareData-th">Company Street 1</th>
                                     <th className="CompareData-th">Company Street 2</th>
                                 </>
-                            ) :(
+                            ) : selectedOption === "ContactExistsButEmailUpdated" ? (
+                                <>
+                                    <th className="CompareData-th">Contact Full Name</th>
+                                    <th className="CompareData-th">Company Name</th>
+                                    <th className="CompareData-th">Company Street 1</th>
+                                    <th className="CompareData-th">Company Street 2</th>
+                                    <th className="CompareData-th">Company City</th>
+                                    <th className="CompareData-th">Company State</th>
+                                    <th className="CompareData-th">Company Post Code</th>
+                                    <th className="CompareData-th">Email 1</th>
+                                    <th className="CompareData-th">Personal Email</th>
+                                </>
+                            ) : selectedOption === "AddressMisMatch" ? (
+                                <>
+                                    <th className="CompareData-th">Item Name</th>
+                                    <th className="CompareData-th">Name</th>
+                                    <th className="CompareData-th">Normalized Item Address</th>
+                                    <th className="CompareData-th">Normalized Unique Address</th>
+                                    <th className="CompareData-th">Original Item Address</th>
+                                    <th className="CompareData-th">Original Unique Address</th>
+                                </>
+                            ) : selectedOption === "excelData" ? (
+                                <>
+                                    <th className="CompareData-th">Contact Full Name</th>
+                                    <th className="CompareData-th">Company Name</th>
+                                    <th className="CompareData-th">Company Street 1</th>
+                                    <th className="CompareData-th">Company Street 2</th>
+                                    <th className="CompareData-th">Company City</th>
+                                    <th className="CompareData-th">Company State</th>
+                                    <th className="CompareData-th">Company Post Code</th>
+                                    <th className="CompareData-th">Email 1</th>
+                                    <th className="CompareData-th">Personal Email</th>
+                                    <th className="CompareData-th">Contact Phone</th>
+                                    <th className="CompareData-th">Company Website</th>
+                                    <th className="CompareData-th">Company County Name</th>
+                                    <th className="CompareData-th">List</th>
+                                </>
+                            ) : selectedOption === "deletedNamesFromExcel" ? (
+                                <>
+                                    <th className="CompareData-th">State</th>
+                                    <th className="CompareData-th">First Name</th>
+                                    <th className="CompareData-th">Middle Name</th>
+                                    <th className="CompareData-th">Last Name</th>
+                                </>
+                            ) : (
                                 headersOrder.filter(header => selectedHeaders[header]).map(header => (
                                     <th key={header} className="CompareData-th">{header}</th>
                                 ))
@@ -570,6 +665,50 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                                             <td className="CompareData-td">{item["Company Name"]}</td>
                                             <td className="CompareData-td">{item["Company Street 1"]}</td>
                                             <td className="CompareData-td">{item["Company Street 2"]}</td>
+                                        </>
+                                    ) : selectedOption === "ContactExistsButEmailUpdated" ? (
+                                        <>
+                                            <td className="CompareData-td">{item["Contact Full Name"]}</td>
+                                            <td className="CompareData-td">{item["Company Name"]}</td>
+                                            <td className="CompareData-td">{item["Company Street 1"]}</td>
+                                            <td className="CompareData-td">{item["Company Street 2"]}</td>
+                                            <td className="CompareData-td">{item["Company City"]}</td>
+                                            <td className="CompareData-td">{item["Company State"]}</td>
+                                            <td className="CompareData-td">{item["Company Post Code"]}</td>
+                                            <td className="CompareData-td">{item["Email 1"]}</td>
+                                            <td className="CompareData-td">{item["Personal Email"]}</td>
+                                        </>
+                                    ) : selectedOption === "AddressMisMatch" ? (
+                                        <>
+                                            <td className="CompareData-td">{item["itemName"]}</td>
+                                            <td className="CompareData-td">{item["uniqueName"]}</td>
+                                            <td className="CompareData-td">{item["normalizedItemAddress"]}</td>
+                                            <td className="CompareData-td">{item["normalizedUniqueAddress"]}</td>
+                                            <td className="CompareData-td">{item["originalItemAddress"]}</td>
+                                            <td className="CompareData-td">{item["originalUniqueAddress"]}</td>
+                                        </>
+                                    ) : selectedOption === "excelData" ? (
+                                        <>
+                                            <td className="CompareData-td">{item["Contact Full Name"]}</td>
+                                            <td className="CompareData-td">{item["Company Name"]}</td>
+                                            <td className="CompareData-td">{item["Company Street 1"]}</td>
+                                            <td className="CompareData-td">{item["Company Street 2"]}</td>
+                                            <td className="CompareData-td">{item["Company City"]}</td>
+                                            <td className="CompareData-td">{item["Company State"]}</td>
+                                            <td className="CompareData-td">{item["Company Post Code"]}</td>
+                                            <td className="CompareData-td">{item["Email 1"]}</td>
+                                            <td className="CompareData-td">{item["Personal Email"]}</td>
+                                            <td className="CompareData-td">{item["Contact Phone"]}</td>
+                                            <td className="CompareData-td">{item["Company Website"]}</td>
+                                            <td className="CompareData-td">{item["County Name"]}</td>
+                                            <td className="CompareData-td">{item["List"]}</td>
+                                        </>
+                                    ) : selectedOption === "deletedNamesFromExcel" ? (
+                                        <>
+                                            <td className="CompareData-td">{item["State"]}</td>
+                                            <td className="CompareData-td">{item["FirstName"]}</td>
+                                            <td className="CompareData-td">{item["MiddleName"]}</td>
+                                            <td className="CompareData-td">{item["LastName"]}</td>
                                         </>
                                     ) : (
                                         headersOrder.filter(header => selectedHeaders[header]).map(header => (
