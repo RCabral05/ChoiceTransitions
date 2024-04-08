@@ -8,6 +8,9 @@ import './styles.css';
 const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     const [data, setData] = useState([]);
     const [person, setPerson] = useState([]);
+    const [addressMismatchLog] = useState([]);
+    console.log('address mismatch', addressMismatchLog)
+
     const [combinedData, setCombinedData] = useState([]);
     const [selectedHeaders, setSelectedHeaders] = useState({});
     const [headersOrder, setHeadersOrder] = useState([]);
@@ -60,6 +63,20 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
             setCombinedData(reFilteredCombined);
         }
     }, [deletedNames, state, stateData, sheetData]);
+
+    const normalizeText = (text) => {
+        if (!text) return '';
+        return text.toLowerCase()
+                   .replace(/\b(st|street)\b/gi, 'street')
+                   .replace(/\b(ave|avenue)\b/gi, 'avenue')
+                   .replace(/\b(rd|road)\b/gi, 'road')
+                   .replace(/\b(dr|drive)\b/gi, 'drive')
+                   .replace(/\b(blvd|boulevard)\b/gi, 'boulevard')
+                   .replace(/\b(ln|lane)\b/gi, 'lane')
+                   .replace(/\b(ct|court)\b/gi, 'court');
+    };
+    
+    
 
     const combineAndFilterData = (dataOne, dataTwo, delName) => {
         const combined = [...dataOne, ...dataTwo];
@@ -125,38 +142,66 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                 const uniqueLastName = uniqueNameParts[uniqueNameParts.length - 1].toLowerCase();
                 const uniqueFirstName = uniqueNameParts[0].toLowerCase();
 
+                const normalizedUniqueAddress = normalizeText(uniqueItem["Company Street 1"]);
+                const normalizedItemAddress = normalizeText(item["Company Street 1"]);
                 // Check last names and first names match
                 if (lastName === uniqueLastName && firstName === uniqueFirstName) {
-                    // Check if addresses match
-                    if (uniqueItem["Company Street 1"] === item["Company Street 1"]) {
-                        // Now, handle email logic according to new rules
-                        if (uniqueItem["Email 1"] && !item["Email 1"]) {
-                            // The existing item has an email, and the new item does not; consider it a duplicate, but do nothing (prefer the one with the email).
-                            const personExists = person.some(ppl => 
-                                ppl.updated["Contact Full Name"] === uniqueItem["Contact Full Name"] && 
-                                ppl.updated["Email 1"] === uniqueItem["Email 1"]
-                            );
-        
-                            if (!personExists) {
-                                person.push({
-                                    updated: uniqueItem // Push the uniqueItem since it contains the email
-                                });
-                            }
-                            foundDuplicate = true;
-                            break;
-                        } else if (!uniqueItem["Email 1"] && item["Email 1"]) {
-                            // The new item has an email, and the existing item does not; replace the existing item with the new one.
-                           
-                            uniqueData[i] = item; // Replace with the item that has an email.
-                            foundDuplicate = true;
-                            break;
-                        } else if (uniqueItem["Email 1"] === item["Email 1"]) {
-                            // Both items have the same email; consider it a duplicate, do nothing.
-                            foundDuplicate = true;
-                            break;
+                    const normalizedUniqueAddress = normalizeText(uniqueItem["Company Street 1"]);
+                    const normalizedItemAddress = normalizeText(item["Company Street 1"]);
+                    const originalUniqueAddress = uniqueItem["Company Street 1"].toLowerCase();
+                    const originalItemAddress = item["Company Street 1"].toLowerCase();
+                    if (normalizedUniqueAddress === normalizedItemAddress) {
+                        if (originalUniqueAddress !== normalizedUniqueAddress || originalItemAddress !== normalizedItemAddress) {
+                            // Log the address mismatches if the normalized addresses match but original ones do not
+                            addressMismatchLog.push({
+                                uniqueName: uniqueItem["Contact Full Name"],
+                                itemName: item["Contact Full Name"],
+                                originalUniqueAddress,
+                                originalItemAddress,
+                                normalizedUniqueAddress,
+                                normalizedItemAddress
+                            });
                         }
-                        // If both have emails and they don't match, or both don't have emails, they are considered non-duplicates, hence do nothing here.
+                        foundDuplicate = true; // Set as duplicate because addresses match after normalization
+                        break;
                     }
+                    // Check if addresses match
+                    // Now, handle email logic according to new rules
+                    if (uniqueItem["Email 1"] && !item["Email 1"]) {
+                        // The existing item has an email, and the new item does not; consider it a duplicate, but do nothing (prefer the one with the email).
+                        const personExists = person.some(ppl => 
+                            ppl.updated["Contact Full Name"] === uniqueItem["Contact Full Name"] && 
+                            ppl.updated["Email 1"] === uniqueItem["Email 1"]
+                        );
+    
+                        if (!personExists) {
+                            person.push({
+                                updated: uniqueItem // Push the uniqueItem since it contains the email
+                            });
+                        }
+                        foundDuplicate = true;
+                        break;
+                    } else if (!uniqueItem["Email 1"] && item["Email 1"]) {
+                        // The new item has an email, and the existing item does not; replace the existing item with the new one.
+                        
+                        uniqueData[i] = item; // Replace with the item that has an email.
+                        foundDuplicate = true;
+                        break;
+                    } else if (uniqueItem["Email 1"] === item["Email 1"]) {
+                        // Both items have the same email; consider it a duplicate, do nothing.
+                        foundDuplicate = true;
+                        break;
+                    }
+
+                    if (uniqueItem["Company Street 1"].toLowerCase() !== normalizedUniqueAddress || item["Company Street 1"].toLowerCase() !== normalizedItemAddress) {
+                        addressMismatchLog.push({
+                            name:uniqueItem["Contact Full Name"],
+                            originalUniqueAddress: uniqueItem["Company Street 1"],
+                            originalItemAddress: item["Company Street 1"],
+                        });
+
+                    }
+                    // If both have emails and they don't match, or both don't have emails, they are considered non-duplicates, hence do nothing here.
                 }
             }
     
