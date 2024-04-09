@@ -23,9 +23,9 @@ export const Index = () => {
           }} />
           Total Records: {records}
 
-          {records != 0 && (
+          {/* {records != 0 && ( */}
             <button onClick={() => handleNavigation('/view-list')}>View List</button>
-          )}
+          {/* )} */}
         </div>
       </div>
     </div>

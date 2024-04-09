@@ -3,30 +3,44 @@ import { useCSV } from '../../../context/CSVContext';
 import './styles.css';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import CompareData from './CompareData/CompareData';
+import deletedNames from './deletedNames.js';
 
 const ViewList = () => {
-  const { dataByState, dataBySheet, deletedNames } = useCSV();
+  const { dataByState, dataBySheet, dataByExcel, fetchRecords, setDataByExcel } = useCSV();
   const [selectedState, setSelectedState] = useState('');
   const [selectedHeaders, setSelectedHeaders] = useState([]);
   const [headersOrder, setHeadersOrder] = useState([]);
   const [activeView, setActiveView] = useState('viewList');
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   // Sort states alphabetically
   const states = Object.keys(dataByState).sort();
 
-  const handleStateChange = (e) => {
-    setSelectedState(e.target.value);
+  const handleStateChange = async (e) => {
+    const newState = e.target.value;
+    setSelectedState(newState);
+
+    if (newState) {
+        try {
+            const fetchedData = await fetchRecords(newState);  // Assume fetchRecords is available via context and correctly implemented to fetch by state
+            // Assuming your context has a method to update the data by state
+            setDataByExcel(newState, fetchedData);  // You would need to implement this method in your context
+        } catch (error) {
+            console.error('Error fetching records:', error);
+        }
+    }
+
+    // This part assumes data is already set in state by the time headers are processed
     const headers = Object.keys(dataByState[e.target.value][0] || {});
-    
-    // Initialize selectedHeaders with all headers set to true (selected)
     const initialSelectedHeaders = headers.reduce((acc, header) => {
-      acc[header] = true;
+      acc[header] = true;  // Initialize all headers as selected
       return acc;
     }, {});
-    
+
     setSelectedHeaders(initialSelectedHeaders);
-    setHeadersOrder(headers); // Initialize headers order when state changes
-  };
+    setHeadersOrder(headers); // Set headers order based on the fetched data
+};
+
   
 
   // Sort the displayed data alphabetically by "Contact Full Name"
@@ -123,7 +137,7 @@ const ViewList = () => {
   
       {activeView === 'compareData' && (
         <div>
-          <CompareData stateData={sortedData} sheetData={dataBySheet} state={selectedState} deletedNames={deletedNames}/>
+          <CompareData stateData={sortedData} sheetData={dataByExcel} state={selectedState} deletedNames={deletedNames}/>
         </div>
       )}
     </div>

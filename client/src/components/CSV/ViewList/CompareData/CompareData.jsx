@@ -3,6 +3,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import ExportIcon from '@mui/icons-material/Downloading';
 import RuleIcon from '@mui/icons-material/Rule';
+import { useCSV } from '../../../../context/CSVContext';
 import './styles.css';
 
 const CompareData = ({stateData, sheetData, state, deletedNames}) => {
@@ -16,8 +17,8 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     const [alreadyMailed, setAlreadyMailed] = useState([]);
     const [delName, setDelName] = useState([]);
     const [selectedOption, setSelectedOption] = useState('');
-    const [displayLimit, setDisplayLimit] = useState(500); // Set initial display limit to 500
     const fileInputRef = useRef(null); 
+    
     const removeTitles = [
         'DMD Candidate',
         'PhD Candidate',
@@ -33,29 +34,32 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     console.log('address already mailed', alreadyMailed);
     console.log('address mismatch (rd = road)', addressMismatchLog);
     console.log('contact existed but email updated', person);
-
     useEffect(() => {
-        // Directly access sheetData for the current state if it exists
-        const sheetDataForState = sheetData[state];
+        console.log('Current sheet data:', sheetData);
         
-        if (sheetDataForState) {
-            // Set the data for the current state
-            setData(sheetDataForState);
-    
-            // Proceed to combine and filter data as needed
-            const initialCombined = combineAndFilterData(stateData, sheetDataForState, []);
-            setCombinedData(initialCombined);
-            
-            // Setup headers based on the combined data
-            if (initialCombined.length > 0) {
-                const allHeaders = Object.keys(initialCombined[0]);
-                setHeadersOrder(allHeaders);
-                const headersSelection = allHeaders.reduce((acc, header) => ({ ...acc, [header]: true }), {});
-                setSelectedHeaders(headersSelection);
-            }
+        // Assume sheetData is an array of records
+        if (!Array.isArray(sheetData)) {
+            console.error('sheetData should be an array but got:', sheetData);
+            return;
         }
-    }, [sheetData, stateData, state]); // Dependencies include stateData, sheetData, and state
-    
+
+        // Filter records by state abbreviation
+        const filteredData = sheetData.filter(record => record.companyStateAbbr === state);
+        setData(filteredData);
+
+        // Combine and filter data as needed
+        const initialCombined = combineAndFilterData(stateData, filteredData, []);
+        setCombinedData(initialCombined);
+        
+        // Setup headers based on the combined data
+        if (initialCombined.length > 0) {
+            const allHeaders = Object.keys(initialCombined[0]);
+            setHeadersOrder(allHeaders);
+            const headersSelection = allHeaders.reduce((acc, header) => ({ ...acc, [header]: true }), {});
+            setSelectedHeaders(headersSelection);
+        }
+    }, [sheetData, stateData, state]); // React to changes in these dependencies
+
 
     useEffect(() => {
         // Filter deleted names based on the state and re-filter combined data if necessary
@@ -89,10 +93,41 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     };
     
     
+    const camelCaseToTitleCase = (camelCase) => {
+        // Replace each uppercase letter and number that is not at the start of the string with a space before it, then capitalize each word
+        let result = camelCase.replace(/(?<!^)([A-Z0-9])/g, " $1").toLowerCase(); // Lowercase everything and insert spaces
+        result = result.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" "); // Capitalize each word
+        return result;
+    };
+    
+    const reformatKeys = (object) => {
+        const newObject = {};
+        Object.keys(object).forEach(key => {
+            newObject[camelCaseToTitleCase(key)] = object[key];
+        });
+        return newObject;
+    };
+    
     
 
     const combineAndFilterData = (dataOne, dataTwo, delName) => {
-        const combined = [...dataOne, ...dataTwo];
+        console.log('one', dataOne);
+        console.log('two', dataTwo);
+        // 
+        // 
+        // ISSUE TO BE FIXED:
+        //  change data two headers to match data one
+        //      example: data one header = Company Name
+        //                  data two header = companyName
+        // 
+        // 
+        // 
+        // 
+        // 
+        const transformedDataTwo = dataTwo.map(item => reformatKeys(item));
+        console.log('transformed', transformedDataTwo);
+
+        const combined = [...dataOne, ...transformedDataTwo];
         const uniqueData = [];
         const duplicates = []; // To store duplicates for logging
         const entriesToRemoveDeleted = [];
@@ -128,7 +163,7 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
             const firstName = itemNameParts[0].toLowerCase();
             const lastName = itemNameParts[itemNameParts.length - 1].toLowerCase();
 
-            const isDeletedName = delName?.some(delN => 
+            const isDeletedName = deletedNames?.some(delN => 
                 delN.FirstName.toLowerCase() === firstName && 
                 delN.LastName.toLowerCase() === lastName
             );
