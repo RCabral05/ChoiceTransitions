@@ -16,9 +16,14 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     const [alreadyMailed, setAlreadyMailed] = useState([]);
     const [delName, setDelName] = useState([]);
     const [selectedOption, setSelectedOption] = useState('');
+    const [displayLimit, setDisplayLimit] = useState(500); // Set initial display limit to 500
     const fileInputRef = useRef(null); 
     const removeTitles = [
         'DMD Candidate',
+        'PhD Candidate',
+        'DDS Candidate',
+        'Doctor of Dental Medicine (DMD) Candidate',
+        'DMD Candidate James B. Edwards College of Dental Medicine',
     ];
 
     // console.log('delName', delName);
@@ -91,19 +96,27 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
         const uniqueData = [];
         const duplicates = []; // To store duplicates for logging
         const entriesToRemoveDeleted = [];
-        console.log('Contact exists but email updated', person);
         const entriesToRemoveTitle = [];
         const entriesToRemove = entriesToRemoveDeleted + entriesToRemoveTitle;
         console.log("Entries to remove", entriesToRemove);
 
        // Filter out entries based on titles
-        const filteredByTitles = combined.filter(item => {
-            if (item.Title && removeTitles.includes(item.Title)) {
-                entriesToRemoveTitle.push(item); // Add to entriesToRemove if title matches
-                return false; // Exclude this item from the result
+       const filteredByTitles = combined.filter(item => {
+            if (item.Title) {
+                // Split the title by '/', '-' and then trim spaces around each part
+                const titleParts = item.Title.split(/[\/\-]/).map(part => part.trim());
+        
+                // Check if any of the title parts are included in the removeTitles array
+                const isTitleToRemove = titleParts.some(part => removeTitles.includes(part));
+        
+                if (isTitleToRemove) {
+                    entriesToRemoveTitle.push(item); // Add to entriesToRemove if any part matches
+                    return false; // Exclude this item from the result
+                }
             }
-            return true; // Include this item in the result
+            return true; // Include this item in the result if none of the parts match
         });
+    
 
         console.log("Entries removed due to title match:", entriesToRemoveTitle);
 
@@ -498,14 +511,14 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                 </DragDropContext>
             </Modal>
             <div className="compare-toolbar">
-                <p style={{color:'white'}}>Combined Data Length: {displayData.length}</p>
+                <p style={{color:'white'}}>Data Length: {displayData.length}</p>
                 <div className="compare-toolbar-buttons">
                     <select onChange={handleSelectChange} value={selectedOption} className="view-list-state-select">
                             <option value="">Full {state} List</option>
                             {/* Replace these options with your actual options */}
                             <option value="Emails">Emails</option>
                             <option value="CompanyStreet">Addresses</option>
-                            <option value="CompanyStreetUpdated">Addresses - Updated New Email Contacts Removed</option>
+                            <option value="CompanyStreetUpdated">Addresses - Old Contacts New Emails Removed</option>
                             <option value="CompanyStreetCSVCheck">Addresses - Already Emailed</option>
                             <option value="excelData">Excel Data</option>
                             <option value="deletedNamesFromExcel">Deleted Names From Excel</option>
