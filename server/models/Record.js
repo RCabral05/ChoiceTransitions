@@ -5,6 +5,9 @@ const RecordSchema = new Schema({
   companyCity: {
     type: String,
   },
+  companyName:{
+    type: String,
+  },
   companyPostCode: {
     type: String,
   },
@@ -18,6 +21,24 @@ const RecordSchema = new Schema({
     type: String,
   },
   countyName: {
+    type: String,
+  },
+  Title: {
+    type: String,
+  },
+  companyStreet2: {
+    type: String,
+  },
+  email: {
+    type: String,
+  },
+  personalEmail: {
+    type: String,
+  },
+  contactPhone: {
+    type: String,
+  },
+  companyWebsite: {
     type: String,
   },
   dateSynced: { // Tracks when the record was added to the database

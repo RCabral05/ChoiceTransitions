@@ -58,11 +58,18 @@ const updateExcelData = async (excelData, fileName) => {
           // For all other sheets that are not to be excluded
           const chunkedData = chunkArray(data, batchSize).map(chunk => chunk.map(record => ({
               companyCity: record["Company City"]?.trim() || "",  // Make sure keys match your data source
+              companyName: record["Company Name"] || "",
               companyPostCode: record["Company Post Code"] || "",
               companyStateAbbr: record["Company State Abbr"] || "",
               companyStreet1: record["Company Street 1"]?.trim() || "",
               contactFullName: record["Contact Full Name"]?.trim() || "",
               countyName: record["County Name"] || "",
+              title: record["Title"] || "",
+              companyStreet2: record["Company Street 2"] || "",
+              email1: record["Email1"] || "",
+              personalEmail: record["Personal Email"] || "",
+              contactPhone: record["Contact Phone"] || "",
+              companyWebsite: record["Company Website"] || "",
           })));
           newSheetData[sheetName] = chunkedData;
       }

@@ -20,15 +20,22 @@ router.post("/upload", async (req, res) => {
 
     const errors = []; // Store validation errors for all records
     const records = req.body.map(data => {
-        const { companyCity, companyPostCode, companyStateAbbr, companyStreet1, contactFullName, countyName } = data;
+        const { companyCity, companyName, companyPostCode, companyStateAbbr, companyStreet1, contactFullName, countyName, title, companyStreet2, email1, personalEmail, contactPhone, companyWebsite } = data;
         // Validate each record (simple example, expand according to your validation logic)
         return new Record({
             companyCity,
+            companyName,
             companyPostCode,
             companyStateAbbr,
             companyStreet1,
             contactFullName,
             countyName,
+            title,
+            companyStreet2,
+            email1,
+            personalEmail,
+            contactPhone,
+            companyWebsite
         });
     }).filter(record => record !== null);  // Filter out null values resulting from failed validation
 

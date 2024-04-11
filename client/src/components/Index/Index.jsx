@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import UploadCSV from '../CSV/UploadCSV/UploadCSV'; // Adjust the path as needed
 import './styles.css';
 import { useCSV } from '../../context/CSVContext';
+import AddressCSV from '../AddressCSV/AddressCSV';
 
 export const Index = () => {
   const { records } = useCSV();
@@ -26,6 +27,9 @@ export const Index = () => {
           {/* {records != 0 && ( */}
             <button onClick={() => handleNavigation('/view-list')}>View List</button>
           {/* )} */}
+
+          <AddressCSV />
+
         </div>
       </div>
     </div>
