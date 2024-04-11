@@ -25,6 +25,33 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
         'DDS Candidate',
         'Doctor of Dental Medicine (DMD) Candidate',
         'DMD Candidate James B. Edwards College of Dental Medicine',
+        'DMD TF Process Engineer',
+        'RDH J. Brad Tally',
+        'Staff Dentist DSRDP The University of Texas Health Science Center',
+        'Staff Dentist DSRDP',
+        'USAF Dentist',
+        'Jr Project & Planning DDS Production',
+        'General Dentist and Assistant Professor',
+        'Captain, Dentist (AEGD-1)',
+        'DDS Candidate University of North Carolina',
+        'DDS Candidate 2022',
+        'Dentist Professor',
+        'DDS candidate at University of North Carolina Adams School of Dentistry',
+        'Team Dentist- UNC Athletics',
+        'Team Dentist- UNC Athletics University of North Carolina',
+        'Major 63A (General Dentist)',
+        'Biology Major and Aspiring Dentist the University of North Carolina',
+        'Biology Major and Aspiring Dentist the University of North Carolina',
+        'Clemson Alumnus DMD candidate',
+        'Resident Dentist University of North Carolina',
+        'HORSE DENTIST',
+        'Dentist Recruiter',
+        'DDS Class of 2023, University of North Carolina',
+        'DDS Candidate the University of North Carolina',
+        'Dentist Supervisor - Oral Health Programs',
+        'US Army Dentist Fort Bragg NC ctr',
+        'ceo Dentist Identity',
+        'DMD Graduate',
     ];
 
     // console.log('delName', delName);
@@ -113,17 +140,7 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     const combineAndFilterData = (dataOne, dataTwo, delName) => {
         console.log('one', dataOne);
         console.log('two', dataTwo);
-        // 
-        // 
-        // ISSUE TO BE FIXED:
-        //  change data two headers to match data one
-        //      example: data one header = Company Name
-        //                  data two header = companyName
-        // 
-        // 
-        // 
-        // 
-        // 
+      
         const transformedDataTwo = dataTwo.map(item => reformatKeys(item));
         console.log('transformed', transformedDataTwo);
 
@@ -309,6 +326,16 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
             csvRows = displayData.map(row => 
                 csvHeaders.map(fieldName => JSON.stringify(row[fieldName] || '')).join(',')
             );
+        } else if (selectedOption==="excelData"){
+            csvHeaders = ["contactFullName", "companyName", "companyStreet1", "companyStreet2"];
+            csvRows = displayData.map(row => 
+                csvHeaders.map(fieldName => JSON.stringify(row[fieldName] || '')).join(',')
+            );
+        } else if (selectedOption==="HasZip" || selectedOption==="EmptyZip"){
+            csvHeaders = ["Contact Full Name", "Company Name", "Company Street 1", "Company Street 2", "Company City", "Company State", "Company Post Code"];
+            csvRows = displayData.map(row => 
+                csvHeaders.map(fieldName => JSON.stringify(row[fieldName] || '')).join(',')
+            );
         } else {
             // Default to all selected headers if no specific option is selected
             csvHeaders = headersOrder.filter(header => selectedHeaders[header]);
@@ -410,43 +437,104 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                     "Company Street 2": item["Company Street 2"]
                 }));
         }
-        if (selectedOption === "CompanyStreetCSVCheck"){
+        if (selectedOption === "CompanyStreetCSVCheck") {
             if (alreadyMailed.length === 0) {
-                return []; // Return an empty array or another suitable default value
+                return []; // Return an empty array if there are no records
             }
             return combinedData
                 .filter(item => item["Company Street 1"]) // Ensure item has an address
                 .filter(item => {
+                    // Skip entries without a full name
                     if (!item["Contact Full Name"]) {
-                        return item; // This effectively skips the item
+                        console.log('no name', item);
+                        return false; // Do not include items without a full name
                     }
                     // Normalize names for comparison to handle case differences
                     const itemNameNormalized = item["Contact Full Name"].toLowerCase().trim();
-                    
-                    // Check if the item's full name matches any name in the `person` array
-                    const isUpdatedPerson = alreadyMailed.some(ppl => {
-                        const personNameNormalized = ppl["Contact Full Name"].toLowerCase().trim();
-                        // console.log(`Comparing: '${personNameNormalized}' with '${itemNameNormalized}'`);
+                    // Check if the item's full name matches any name in the `alreadyMailed` array
+                    const isUpdatedPerson = alreadyMailed.some(person => {
+                        const personNameNormalized = person["contactFullName"].toLowerCase().trim();
                         return personNameNormalized === itemNameNormalized;
                     });
-                    
-        
-                    // console.log('Is updated person:', isUpdatedPerson, 'for', item["Contact Full Name"]);
-                    return !isUpdatedPerson; // Exclude if found in `person`
+                    // console.log('isUpdated', isUpdatedPerson);
+                    // Exclude if found in `alreadyMailed`
+                    return !isUpdatedPerson;
                 })
                 .map(item => ({
                     "Contact Full Name": item["Contact Full Name"],
                     "Company Name": item["Company Name"],
                     "Company Street 1": item["Company Street 1"],
-                    "Company Street 2": item["Company Street 2"]
+                    "Company Street 2": item["Company Street 2"],
+                    "Company City": item["Company City"],
+                    "Company State Abbr": item["Company State Abbr"],
+                    "Company Post Code": item["Company Post Code"],
                 }));
         }
+        
+        if (selectedOption === "EmptyZip") {
+            if (alreadyMailed.length === 0) {
+                return []; // Return an empty array if there are no records
+            }
+            return combinedData
+                .filter(item => item["Company Street 1"]) // Ensure item has a street address
+                .filter(item => {
+                    // Return false (exclude) if 'Company Post Code' is present (non-empty and not just whitespace)
+                    if (item["Company Post Code"] && item["Company Post Code"].trim() !== "") {
+                        return false;
+                    }
+                    // Normalize names for comparison to handle case differences
+                    const itemNameNormalized = item["Contact Full Name"].toLowerCase().trim();
+                    // Check if the item's full name matches any name in the 'alreadyMailed' list
+                    const isUpdatedPerson = alreadyMailed.some(ppl => {
+                        const personNameNormalized = ppl["contactFullName"].toLowerCase().trim();
+                        return personNameNormalized === itemNameNormalized;
+                    });
+                    // Exclude if found in 'alreadyMailed'
+                    return !isUpdatedPerson;
+                })
+                .map(item => ({
+                    "Contact Full Name": item["Contact Full Name"],
+                    "Company Name": item["Company Name"],
+                    "Company Street 1": item["Company Street 1"],
+                    "Company Street 2": item["Company Street 2"],
+                    "Company City": item["Company City"],
+                    "Company State Abbr": item["Company State Abbr"],
+                    "Company Post Code": item["Company Post Code"],
+                }));
+        }
+        if (selectedOption === "HasZip") {
+            if (alreadyMailed.length === 0) {
+                return []; // Return an empty array if there are no records
+            }
+            return combinedData
+                .filter(item => item["Company Street 1"]) // Ensure item has a street address
+                .filter(item => {
+                    // Include only if 'Company Post Code' is present (non-empty and not just whitespace)
+                    if (!item["Company Post Code"] || item["Company Post Code"].trim() === "") {
+                        return false;
+                    }
+                    // Normalize names for comparison
+                    const itemNameNormalized = item["Contact Full Name"].toLowerCase().trim();
+                    // Exclude if name is in the 'alreadyMailed' list
+                    return !alreadyMailed.some(ppl => ppl["contactFullName"].toLowerCase().trim() === itemNameNormalized);
+                })
+                .map(item => ({
+                    "Contact Full Name": item["Contact Full Name"],
+                    "Company Name": item["Company Name"],
+                    "Company Street 1": item["Company Street 1"],
+                    "Company Street 2": item["Company Street 2"],
+                    "Company City": item["Company City"],
+                    "Company State Abbr": item["Company State Abbr"],
+                    "Company Post Code": item["Company Post Code"],
+                }));
+        }
+        
         if (selectedOption === "excelData") {
             if (data.length === 0) {
                 return []; // Return an empty array or another suitable default value
             }
-            return data
-                .filter(item => item["Company Street 1"] && item["Contact Full Name"]) // Ensure item has an address and a contact name
+            return sheetData
+                .filter(item => item["companyStreet1"] && item["contactFullName"]) // Ensure item has an address and a contact name
                 .map(item => ({
                     ...item // Spread operator to return all fields of the item
                 }));
@@ -503,25 +591,24 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
 
     
     const parseCsv = (text) => {
-        // Simple CSV parsing
         const lines = text.split('\n');
         const result = [];
-        const headers = lines[0].split(',');
+        const headers = lines[0].split(',').map(header => header.trim().replace(/^"|"$/g, ''));
     
         for (let i = 1; i < lines.length; i++) {
-            if (!lines[i]) continue;
-            const obj = {};
-            const currentline = lines[i].split(',');
-    
-            for (let j = 0; j < headers.length; j++) {
-                obj[headers[j]] = currentline[j];
-            }
+            const currentline = lines[i].split(',').map(value => value.trim().replace(/^"|"$/g, '').replace(/\\\"/g, '\"'));
+            if (!currentline[0]) continue; // skip empty lines
+            const obj = headers.reduce((acc, header, index) => {
+                acc[header] = currentline[index] || ''; // remove backslashes escaping quotes
+                return acc;
+            }, {});
     
             result.push(obj);
         }
     
         setAlreadyMailed(result); // Update state with parsed data
     };
+    
 
     return (
         <>
@@ -554,7 +641,9 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                             <option value="Emails">Emails</option>
                             <option value="CompanyStreet">Addresses</option>
                             <option value="CompanyStreetUpdated">Addresses - Old Contacts New Emails Removed</option>
-                            <option value="CompanyStreetCSVCheck">Addresses - Already Emailed</option>
+                            <option value="CompanyStreetCSVCheck">Addresses - Already Mailed</option>
+                            <option value="EmptyZip">Addresses - Empty ZIP</option>
+                            <option value="HasZip">Addresses - Has ZIP</option>
                             <option value="excelData">Excel Data</option>
                             <option value="deletedNamesFromExcel">Deleted Names From Excel</option>
                             <option value="AddressMisMatch">Address MisMatch (rd = road)</option>
@@ -566,7 +655,7 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                         </>
                     )}
                     <button onClick={exportToCSV}><ExportIcon/></button>
-                    {selectedOption === "CompanyStreetCSVCheck" && (
+                    {(selectedOption === "CompanyStreetCSVCheck" || selectedOption === "EmptyZip" || selectedOption === "HasZip") && (
                         <>
                             <input
                                 type="file"
@@ -620,6 +709,27 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                                     <th className="CompareData-th">Company Name</th>
                                     <th className="CompareData-th">Company Street 1</th>
                                     <th className="CompareData-th">Company Street 2</th>
+                                    <th className="CompareData-th">Company City</th>
+                                    <th className="CompareData-th">Company State</th>
+                                    <th className="CompareData-th">Company Post Code</th>
+                                </>
+                            ) : selectedOption === "EmptyZip" ? (
+                                <>
+                                    <th className="CompareData-th">Contact Full Name</th>
+                                    <th className="CompareData-th">Company Street 1</th>
+                                    <th className="CompareData-th">Company City</th>
+                                    <th className="CompareData-th">Company State</th>
+                                    <th className="CompareData-th">Company Post Code</th>
+                                </>
+                            ) : selectedOption === "HasZip" ? (
+                                <>
+                                    <th className="CompareData-th">Contact Full Name</th>
+                                    <th className="CompareData-th">Company Name</th>
+                                    <th className="CompareData-th">Company Street 1</th>
+                                    <th className="CompareData-th">Company Street 2</th>
+                                    <th className="CompareData-th">Company City</th>
+                                    <th className="CompareData-th">Company State</th>
+                                    <th className="CompareData-th">Company Post Code</th>
                                 </>
                             ) : selectedOption === "ContactExistsButEmailUpdated" ? (
                                 <>
@@ -651,12 +761,7 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                                     <th className="CompareData-th">Company City</th>
                                     <th className="CompareData-th">Company State</th>
                                     <th className="CompareData-th">Company Post Code</th>
-                                    <th className="CompareData-th">Email 1</th>
-                                    <th className="CompareData-th">Personal Email</th>
-                                    <th className="CompareData-th">Contact Phone</th>
-                                    <th className="CompareData-th">Company Website</th>
                                     <th className="CompareData-th">Company County Name</th>
-                                    <th className="CompareData-th">List</th>
                                 </>
                             ) : selectedOption === "deletedNamesFromExcel" ? (
                                 <>
@@ -713,7 +818,28 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                                             <td className="CompareData-td">{item["Company Name"]}</td>
                                             <td className="CompareData-td">{item["Company Street 1"]}</td>
                                             <td className="CompareData-td">{item["Company Street 2"]}</td>
+                                            <td className="CompareData-td">{item["Company City"]}</td>
+                                            <td className="CompareData-td">{item["Company State Abbr"]}</td>
+                                            <td className="CompareData-td">{item["Company Post Code"]}</td>
                                         </>
+                                    ) : selectedOption === "EmptyZip" ? (
+                                        <>
+                                            <td className="CompareData-td">{item["Contact Full Name"]}</td> 
+                                            <td className="CompareData-td">{item["Company Street 1"]}</td>
+                                            <td className="CompareData-td">{item["Company City"]}</td>
+                                            <td className="CompareData-td">{item["Company State Abbr"]}</td>
+                                            <td className="CompareData-td">{item["Company Post Code"]}</td>
+                                        </>
+                                    ) : selectedOption === "HasZip" ? (
+                                        <>
+                                            <td className="CompareData-td">{item["Contact Full Name"]}</td>
+                                            <td className="CompareData-td">{item["Company Name"]}</td>
+                                            <td className="CompareData-td">{item["Company Street 1"]}</td>
+                                            <td className="CompareData-td">{item["Company Street 2"]}</td>
+                                            <td className="CompareData-td">{item["Company City"]}</td>
+                                            <td className="CompareData-td">{item["Company State Abbr"]}</td>
+                                            <td className="CompareData-td">{item["Company Post Code"]}</td>
+                                        </> 
                                     ) : selectedOption === "ContactExistsButEmailUpdated" ? (
                                         <>
                                             <td className="CompareData-td">{item["Contact Full Name"]}</td>
@@ -737,19 +863,14 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                                         </>
                                     ) : selectedOption === "excelData" ? (
                                         <>
-                                            <td className="CompareData-td">{item["Contact Full Name"]}</td>
-                                            <td className="CompareData-td">{item["Company Name"]}</td>
-                                            <td className="CompareData-td">{item["Company Street 1"]}</td>
-                                            <td className="CompareData-td">{item["Company Street 2"]}</td>
-                                            <td className="CompareData-td">{item["Company City"]}</td>
-                                            <td className="CompareData-td">{item["Company State"]}</td>
-                                            <td className="CompareData-td">{item["Company Post Code"]}</td>
-                                            <td className="CompareData-td">{item["Email 1"]}</td>
-                                            <td className="CompareData-td">{item["Personal Email"]}</td>
-                                            <td className="CompareData-td">{item["Contact Phone"]}</td>
-                                            <td className="CompareData-td">{item["Company Website"]}</td>
-                                            <td className="CompareData-td">{item["County Name"]}</td>
-                                            <td className="CompareData-td">{item["List"]}</td>
+                                            <td className="CompareData-td">{item["contactFullName"]}</td>
+                                            <td className="CompareData-td">{item["companyName"]}</td>
+                                            <td className="CompareData-td">{item["companyStreet1"]}</td>
+                                            <td className="CompareData-td">{item["companyStreet2"]}</td>
+                                            <td className="CompareData-td">{item["companyCity"]}</td>
+                                            <td className="CompareData-td">{item["companyStateAbbr"]}</td>
+                                            <td className="CompareData-td">{item["companyPostCode"]}</td>
+                                            <td className="CompareData-td">{item["countyName"]}</td>
                                         </>
                                     ) : selectedOption === "deletedNamesFromExcel" ? (
                                         <>
