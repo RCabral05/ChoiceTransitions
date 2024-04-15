@@ -17,6 +17,7 @@ export const Navbar = () => {
         <div className="navbar-links">
           <a href="/"><span style={{color:'orange'}}>\ </span>UPLOAD <span style={{color:'orange'}}>RECORDS</span></a>
           <a href="/map"><span style={{color:'orange'}}>\ </span>VIEW <span style={{color:'orange'}}>MAP</span></a>
+          <a href="/excelTitles"><span style={{color:'orange'}}>\ </span>EXCEL <span style={{color:'orange'}}>REMOVE</span></a>
         </div>
       </div>
     </div>

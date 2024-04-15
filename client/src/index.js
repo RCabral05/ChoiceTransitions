@@ -8,6 +8,7 @@ import HomePage from "./pages/HomePage";
 import StateMapPage from "./pages/StateMapPage";
 import MapPage from "./pages/MapPage";
 import ViewListPage from "./components/CSV/ViewList/ViewList";
+import { ExcelRemoveTitlePage } from "./pages/ExcelRemoveTitlePage";
 import { CSVProvider } from './context/CSVContext';
 // Create root element
 const rootElement = document.getElementById("root");
@@ -21,6 +22,7 @@ root.render(
             <Route index element={<HomePage />} />
             <Route path="/state-map" element={<StateMapPage />} />
             <Route path="/map" element={<MapPage />} />
+            <Route path="/excelTitles" element={<ExcelRemoveTitlePage />} />
             <Route path="/view-list" element={<ViewListPage />} />
             <Route path="*" element={<p>Route not found</p>} />
           </Route>
