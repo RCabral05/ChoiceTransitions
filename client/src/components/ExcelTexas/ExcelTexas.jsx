@@ -68,12 +68,48 @@ export const ExcelTexas = () => {
     setFileDataOne(mergedData);
   };
   
-  const exportToExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(fileDataOne);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "MergedData");
-    XLSX.writeFile(wb, "MergedData.xlsx");
-  };
+
+  const exportToCSV = () => {
+    if (!fileDataOne.length) {
+        console.error("No data available to export.");
+        return;
+    }
+
+    // Define headers in the desired order explicitly
+    const headers = [
+        "Contact Full Name", "Company Name", "Title", "Company Street 1", 
+        "Company Street 2", "Company City", "Company State Abbr", 
+        "Company Post Code", "Email 1", "Personal Email", "Contact Phone 1", 
+        "Company Website"
+    ];
+
+    // Create a header string by joining all headers with commas
+    const headerString = headers.join(",");
+
+    // Map each row of data to match the header order
+    const rows = fileDataOne.map(row => 
+        headers.map(header => {
+            const field = row[header] ?? ""; // Use an empty string for missing data points
+            return `"${field.toString().replace(/"/g, '""')}"`; // Properly escape quotes in CSV format
+        }).join(",")
+    );
+
+    // Combine the header row and the data rows, separated by a new line
+    const csv = [headerString, ...rows].join("\n");
+
+    // Create a Blob with the CSV data
+    const csvData = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const csvURL = window.URL.createObjectURL(csvData);
+
+    // Create a temporary link element and trigger the download
+    const tempLink = document.createElement('a');
+    tempLink.href = csvURL;
+    tempLink.setAttribute('download', 'MergedData.csv');
+    tempLink.click();
+};
+
+
+
 
   return (
     <div className='excelData'>
@@ -83,7 +119,7 @@ export const ExcelTexas = () => {
             (TX BAL)
             <input type="file" onChange={handleFileChangeTwo} accept=".xlsx,.xls" />
             <button onClick={mergeData}>Merge Data</button>
-            <button onClick={exportToExcel}>Export to Excel</button>
+            <button onClick={exportToCSV}>Export to CSV</button>
             <h3>Merged Data:</h3>
             {/* <pre>{JSON.stringify(fileDataOne, null, 2)}</pre> */}
         </div>
