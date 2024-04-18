@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
+import { ExcelFullList } from './ExcelFullList';
 import './styles.css';
 
 export const ExcelRemoveTitles = () => {
@@ -64,6 +65,62 @@ export const ExcelRemoveTitles = () => {
     'The University of Texas Health Science Center at Houston',
     'TAMU',
     'Texas A&M University School of Dentistry',
+    'UAB School of Dentistry',
+    'New York Dental School',
+    'University of Alabama at Birmingham',
+    'Brightwood College',
+    'UAB Medicine',
+    'US Air Force Reserve',
+    'Augusta University',
+    'U.s. Air Force Reserve',
+    'University of Mississippi Medical Center',
+    'UMMC',
+    'The University of Tennessee Health Science Center',
+    'Vanderbilt University Medical Center',
+    'United States Department of the Air Force',
+    'University General Dentists',
+    'Uthsc',
+    'Florida State University College.',
+    'Nova Southeastern University',
+    'University of Miami',
+    'University of Florida Dental Clinic',
+    'University of Florida',
+    'Remington College',
+    'University of Florida College of Dentistry',
+    'Miami Dade College, Broward College and Nova Southeastern University',
+    'University of Miami, Miller School of Medicine',
+    'University of Florida-Seminole AEGD',
+    'Florida International University',
+    'University at Buffalo',
+    'New York University',
+    'Tel Aviv University',
+    'North Shore University Hospital',
+    'University of Rochester',
+    'NYU',
+    'United States Army',
+    'University Pediatric Dentistry',
+    'Columbia University in the City of New York',
+    'Stony Brook School of Dental Medicine',
+    'United Nations',
+    'Staten Island University Hospital',
+    'NYU College of Dentistry',
+    'U.s. Army Dental Corps',
+    'Brookdale University Hospital and Medical Center',
+    'New York University College of Dentistry',
+    'New York University Abu Dhabi',
+    'University of Rochester Medical Center',
+    'Nyu School of Dentistry',
+    'Stony Brook University Hospital',
+    'U.S Army',
+    'Columbia University',
+    'Nassau University Medical Center',
+    'Columbia University in the City of New York',
+    'University Pediatric Dentistry',
+    'U.s. Army Active Duty',
+    'The Harvard School of Dental Medicine',
+    'NYU Lutheran',
+    'New York Medical College',
+    'State University of New York at Buffalo'
 ];
 
   const handleFileChange = (event) => {
@@ -152,6 +209,9 @@ export const ExcelRemoveTitles = () => {
           Removed Names: <pre>{JSON.stringify(removedNames, null, 2)}</pre>
         </div>
       )}
+
+
+      <ExcelFullList />
     </div>
   );
 };

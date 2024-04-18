@@ -4,6 +4,7 @@ import UploadCSV from '../CSV/UploadCSV/UploadCSV'; // Adjust the path as needed
 import './styles.css';
 import { useCSV } from '../../context/CSVContext';
 import AddressCSV from '../AddressCSV/AddressCSV';
+import { ExcelTexas } from '../ExcelTexas/ExcelTexas';
 
 export const Index = () => {
   const { records } = useCSV();
@@ -29,7 +30,8 @@ export const Index = () => {
           {/* )} */}
 
           <AddressCSV />
-
+          <ExcelTexas />
+          
         </div>
       </div>
     </div>

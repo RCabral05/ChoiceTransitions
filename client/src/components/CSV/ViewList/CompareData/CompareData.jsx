@@ -54,6 +54,117 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
         'DMD Graduate',
     ];
 
+
+    const removeCompanies = [
+        'United States Air Force',
+        'US Air Force',
+        'Texas A&M College of Dentistry',
+        'The University of Texas Health Science Center at Houston School of Dentistry',
+        'The University of Texas Medical Branch',
+        'Midwestern State University',
+        'U.s. Army Network Enterprise Technology Command',
+        'Veterans Health Care System of the Ozarks',
+        'UAMS',
+        'Arkansas Department of Human Services & Owner of Huntington Learning Center',
+        'University of Arkansas',
+        'University of Arkansas for Medical Sciences',
+        'University of Michigan',
+        'University of Detroit Mercy School of Dentistry',
+        'University of Michigan School of Dentistry',
+        'University of Detroit Mercy',
+        'University Family Dentistry',
+        'International College of Dentists',
+        'Lansing Community College',
+        'Spring Arbor University',
+        'University of Michigan Medical School',
+        'University of Michigan School of Dentistry Mexican Dentist',
+        'University of North Carolina at Chapel Hill',
+        'East Carolina University',
+        'United States Army Reserve',
+        'UNC',
+        'University of North Carolina',
+        'Retire from Rentals',
+        'UNC at Chapel Hill',
+        'East Carolina University School of Dental Medicine',
+        'Unc School of Dentistry',
+        'University Hospitals',
+        'University of Cincinnati',
+        'Case Western Reserve University',
+        'The Ohio State University',
+        'Case Western Reserve University',
+        'Cleveland Dental Institute',
+        'MedVet Medical & Cancer Centers for Pets',
+        'Case Western Reserve University School of Dental Medicine',
+        'The Ohio State University at Newark',
+        'Medical University of South Carolina',
+        'Midlands Technical College',
+        'Universidade Federal De Santa Catarina',
+        'US Army Medical Department',
+        'The University of Texas Health Science Center',
+        'Texas A&M University',
+        'United States Air Force Dental Corp.',
+        'United States Air Force Reserve',
+        'The University of Texas Health Science Center at Houston',
+        'TAMU',
+        'Texas A&M University School of Dentistry',
+        'UAB School of Dentistry',
+        'New York Dental School',
+        'University of Alabama at Birmingham',
+        'Brightwood College',
+        'UAB Medicine',
+        'US Air Force Reserve',
+        'Augusta University',
+        'U.s. Air Force Reserve',
+        'University of Mississippi Medical Center',
+        'UMMC',
+        'The University of Tennessee Health Science Center',
+        'Vanderbilt University Medical Center',
+        'United States Department of the Air Force',
+        'University General Dentists',
+        'Uthsc',
+        'Florida State University College.',
+        'Nova Southeastern University',
+        'University of Miami',
+        'University of Florida Dental Clinic',
+        'University of Florida',
+        'Remington College',
+        'University of Florida College of Dentistry',
+        'Miami Dade College, Broward College and Nova Southeastern University',
+        'University of Miami, Miller School of Medicine',
+        'University of Florida-Seminole AEGD',
+        'Florida International University',
+        'University at Buffalo',
+        'New York University',
+        'Tel Aviv University',
+        'North Shore University Hospital',
+        'University of Rochester',
+        'NYU',
+        'United States Army',
+        'University Pediatric Dentistry',
+        'Columbia University in the City of New York',
+        'Stony Brook School of Dental Medicine',
+        'United Nations',
+        'Staten Island University Hospital',
+        'NYU College of Dentistry',
+        'U.s. Army Dental Corps',
+        'Brookdale University Hospital and Medical Center',
+        'New York University College of Dentistry',
+        'New York University Abu Dhabi',
+        'University of Rochester Medical Center',
+        'Nyu School of Dentistry',
+        'Stony Brook University Hospital',
+        'U.S Army',
+        'Columbia University',
+        'Nassau University Medical Center',
+        'Columbia University in the City of New York',
+        'University Pediatric Dentistry',
+        'U.s. Army Active Duty',
+        'The Harvard School of Dental Medicine',
+        'NYU Lutheran',
+        'New York Medical College',
+        'State University of New York at Buffalo'
+    ];
+
     // console.log('delName', delName);
     console.log('excel data', data);
     console.log('combined data', combinedData);
@@ -149,7 +260,8 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
         const duplicates = []; // To store duplicates for logging
         const entriesToRemoveDeleted = [];
         const entriesToRemoveTitle = [];
-        const entriesToRemove = entriesToRemoveDeleted + entriesToRemoveTitle;
+        const entriesToRemoveCompany = [];
+        const entriesToRemove = entriesToRemoveDeleted + entriesToRemoveTitle + entriesToRemoveCompany;
         console.log("Entries to remove", entriesToRemove);
 
        // Filter out entries based on titles
@@ -161,9 +273,18 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
                 // Check if any of the title parts are included in the removeTitles array
                 const isTitleToRemove = titleParts.some(part => removeTitles.includes(part));
         
-                if (isTitleToRemove) {
-                    entriesToRemoveTitle.push(item); // Add to entriesToRemove if any part matches
-                    return false; // Exclude this item from the result
+                const companyName = item['Company Name'] ? item['Company Name'].trim() : ''; // Corrected property access
+                const isCompanyToRemove = removeCompanies.includes(companyName);
+
+                // Condition to remove an item if title or company name matches the removal criteria
+                if (isTitleToRemove || isCompanyToRemove) {
+                    if (isTitleToRemove) {
+                        entriesToRemoveTitle.push(item); // Optionally log title-based removals
+                    }
+                    if (isCompanyToRemove) {
+                        entriesToRemoveCompany.push(item); // Optionally log company-based removals
+                    }
+                    return false;
                 }
             }
             return true; // Include this item in the result if none of the parts match
@@ -171,6 +292,7 @@ const CompareData = ({stateData, sheetData, state, deletedNames}) => {
     
 
         console.log("Entries removed due to title match:", entriesToRemoveTitle);
+        console.log("Entries removed due to company match:", entriesToRemoveCompany);
 
         // Further filter out entries based on deleted names
         const filteredCombined = filteredByTitles.filter(item => {

@@ -1,4 +1,9 @@
 .excelData{
     /* border: 1px solid red; */
     margin-top: 10vh;
+    color: white;
+}
+.excel-content{
+    display: flex;
+    flex-direction: column;
 }
